@@ -21,7 +21,7 @@ def main():
 
     WorkQueA = AyonWorkSys.AyonWorkQue()
 
-    for i in range(10):
+    for i in range(200):
         i = i+1 # i want the numbers in the display to start at 1 that all
         pgbA = download_window.add_progress_bar(text=f"test item {i}", icon_path=icon_path)
 

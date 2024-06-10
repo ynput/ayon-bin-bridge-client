@@ -1,4 +1,5 @@
 import os 
+import shutil
 import sys
 
 from qtpy.QtWidgets import QApplication
@@ -21,14 +22,19 @@ def main():
    
     WorkQueA = AyonWorkSys.AyonWorkQue()
 
-    for i in range(1):
+    for i in range(20):
         i = i+1 # i want the numbers in the display to start at 1 that all
         pgbA = download_window.add_progress_bar(text=f"Download Usd {i}", icon_path=icon_path)
+        
+        d_path = os.path.join(os.path.abspath(os.curdir), "dell", f"foulder_{i}")
+        if os.path.exists(d_path):
+            shutil.rmtree(d_path)
+        os.mkdir(d_path)
 
         WorkItemA = AyonWorkSys.AyonWorkItem()
         WorkItemA.name = f"test item {i}"
         WorkItemA.func = load_ayon_usd
-        WorkItemA.args = ["lakefs://ayon-usd/main/", os.path.join(os.path.abspath(os.curdir), "dell/")] 
+        WorkItemA.args = ["lakefs://ayon-usd/main/", os.path.join(os.path.abspath(os.curdir), d_path)] 
         WorkItemA.kargs = {}
         WorkItemA.additional_progress_callback = pgbA.set_progress
         WorkItemA.additional_finish_callback = pgbA.close_progress_bar
