@@ -1,0 +1,6 @@
+testVenv/
+__pycache__/
+# ignored by lakectl local
+dell/*
+!dell/.lakefs_ref.yaml
+# End ignored by lakectl local
