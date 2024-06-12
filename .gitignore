@@ -2,16 +2,29 @@ testVenv/
 dell/
 __pycache__/
 AyonBinDistro_cicd/
+test.py
+test/test_with_lake_ctl_server.py
+test/.lakectl.yaml
 
 # ignored by lakectl local
 dell/down_b3/*
 !dell/down_b3/.lakefs_ref.yaml
 dell/down_b1/*
 !dell/down_b1/.lakefs_ref.yaml
+dell/down_b6/*
+!dell/down_b6/.lakefs_ref.yaml
 dell/down_b2/*
 !dell/down_b2/.lakefs_ref.yaml
+dell/down_b5/*
+!dell/down_b5/.lakefs_ref.yaml
 dell/down_b4/*
 !dell/down_b4/.lakefs_ref.yaml
+dell/down_b8/*
+!dell/down_b8/.lakefs_ref.yaml
+dell/down_b7/*
+!dell/down_b7/.lakefs_ref.yaml
+dell/down_b9/*
+!dell/down_b9/.lakefs_ref.yaml
 dell/down_b0/*
 !dell/down_b0/.lakefs_ref.yaml
 # End ignored by lakectl local

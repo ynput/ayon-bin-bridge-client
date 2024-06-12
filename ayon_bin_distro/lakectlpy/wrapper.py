@@ -142,6 +142,7 @@ class LakeCtl:
         process.stderr.close()
 
     # TODO i think fs dose not return progress (needs testing with a big zip)
+    # TODO the lakeFs functions need to be able to run without progress_obj
     def clone_element(
         self,
         progress_obj: Union[worker.BaseProgressItem, worker.ProgressItem],
