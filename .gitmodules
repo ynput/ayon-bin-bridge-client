@@ -1,0 +1,3 @@
+[submodule "ayon_cicd_tools"]
+	path = ayon_cicd_tools
+	url = https://github.com/ynput/AyonCiCd-Automator.git

@@ -1,6 +1,7 @@
 testVenv/
 dell/
 __pycache__/
+AyonBinDistro_cicd/
 
 # ignored by lakectl local
 dell/down_b3/*
