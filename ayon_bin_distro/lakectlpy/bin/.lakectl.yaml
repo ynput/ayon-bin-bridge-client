@@ -1,0 +1,16 @@
+credentials:
+    access_key_id: AKIAIOSFOLKFSSAMPLES
+    secret_access_key: wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+metastore:
+    glue:
+        catalog_id: ""
+    hive:
+        db_location_uri: file:/user/hive/warehouse/
+        uri: ""
+server:
+    endpoint_url: http://127.0.0.1:58000
+    retries:
+        enabled: true
+        max_attempts: 4
+        max_wait_interval: 30s
+        min_wait_interval: 200ms
