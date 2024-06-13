@@ -2,8 +2,7 @@ import sys
 import subprocess
 import os
 import shutil
-import select
-from typing import Union
+from typing import Optional, Union
 import yaml
 import platform
 import fcntl
@@ -11,9 +10,47 @@ import fcntl
 from ..work_handler import worker
 
 
-# TODO windows version (should just be a singe change in _run)
+def create_config(
+    dist_path: str,
+    access_key_id: str,
+    secret_access_key: str,
+    server_url: str,
+    enable_retries: bool = True,
+    retrie_max_attempts: int = 4,
+    retrie_max_wait: str = "30s",
+    retrie_min_wait: str = "200ms",
+) -> Union[str, None]:
+    if not dist_path.endswith(".yaml"):
+        return None
+    data = {
+        "credentials": {
+            "access_key_id": access_key_id,
+            "secret_access_key": secret_access_key,
+        },
+        "metastore": {
+            "glue": {"catalog_id": ""},
+            "hive": {"db_location_uri": "file:/user/hive/warehouse/", "uri": ""},
+        },
+        "server": {
+            "endpoint_url": server_url,
+            "retries": {
+                "enabled": enable_retries,
+                "max_attempts": retrie_max_attempts,
+                "max_wait_interval": retrie_max_wait,
+                "min_wait_interval": retrie_min_wait,
+            },
+        },
+    }
+
+    with open(dist_path, "w") as file:
+        yaml.dump(data, file, default_flow_style=True)
+
+    return dist_path
+
+
+# TODO test windows version
 class LakeCtl:
-    def __init__(self, conf_file_pos=None, base_uri_oberwrite=None) -> None:
+    def __init__(self, conf_file_path=None, base_uri_oberwrite=None) -> None:
         self.bin_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "bin")
 
         if platform.system().lower() == "windows":
@@ -44,13 +81,15 @@ class LakeCtl:
         else:
             self.base_uri = None
 
-        if conf_file_pos:
-            self.conf_file = os.path.abspath(conf_file_pos)
+        if conf_file_path:
+            self.conf_file = os.path.abspath(conf_file_path)
         else:
             self.conf_file = os.path.join(self.bin_path, ".lakectl.yaml")
         self.data = ""
 
-    def _run(self, lakectl_command: list, cwd=None) -> subprocess.Popen:
+    def _run(
+        self, lakectl_command: list, cwd=None, non_blocking_stdout: bool = True
+    ) -> subprocess.Popen:
         base_uri_command = []
         if self.base_uri:
             base_uri_command = ["--base-uri", self.base_uri]
@@ -68,11 +107,11 @@ class LakeCtl:
             universal_newlines=True,
             cwd=cwd,
         )
-
-        flags = fcntl.fcntl(process.stdout.fileno(), fcntl.F_GETFL)
-        fcntl.fcntl(process.stdout.fileno(), fcntl.F_SETFL, flags | os.O_NONBLOCK)
-        flags = fcntl.fcntl(process.stderr.fileno(), fcntl.F_GETFL)
-        fcntl.fcntl(process.stderr.fileno(), fcntl.F_SETFL, flags | os.O_NONBLOCK)
+        if process.stdout and process.stderr and non_blocking_stdout:
+            flags = fcntl.fcntl(process.stdout.fileno(), fcntl.F_GETFL)
+            fcntl.fcntl(process.stdout.fileno(), fcntl.F_SETFL, flags | os.O_NONBLOCK)
+            flags = fcntl.fcntl(process.stderr.fileno(), fcntl.F_GETFL)
+            fcntl.fcntl(process.stderr.fileno(), fcntl.F_SETFL, flags | os.O_NONBLOCK)
 
         return process
 
@@ -82,19 +121,30 @@ class LakeCtl:
         while process.poll() is None:
             sys.stdout.write(process.stdout.readline())
 
+    def list_repo_objects(self, lake_fs_repo_uri: str):
+        process = self._run(
+            ["fs", "ls", "-r", lake_fs_repo_uri], non_blocking_stdout=False
+        )
+        object_list = []
+        while process.poll() is None:
+            stdout = process.stdout.readline()
+            if stdout and "object" in stdout:
+                object_list.append(stdout.split()[-1])
+
+        return object_list
+
     def clone_local(
         self,
-        progress_obj: Union[worker.BaseProgressItem, worker.ProgressItem],
+        progress_obj: Optional[Union[worker.BaseProgressItem, worker.ProgressItem]],
         repo_branch_uri: str,
         dist_path: str,
         exists_okay=False,
         print_stdout: bool = False,
     ) -> None:
 
-        if dist_path:
-            if exists_okay:
-                if os.path.exists(dist_path):
-                    shutil.rmtree(dist_path)
+        if dist_path and exists_okay:
+            if os.path.exists(dist_path):
+                shutil.rmtree(dist_path)
             os.makedirs(dist_path)
 
         process = self._run(["local", "clone", repo_branch_uri], cwd=dist_path)
@@ -103,60 +153,63 @@ class LakeCtl:
         current_object = None
 
         while process.poll() is None:
-            if select.select([process.stdout], [], [], 0.1)[0]:
-                current_line = process.stdout.readline()
-                if current_line:
-                    current_line_split = current_line.split()
-                    for i in current_line_split:
-                        if "%" in i:
-                            current_progress_r = float(i.replace("%", ""))
-                            if current_progress_r != current_progress:
-                                current_progress = current_progress_r
-                                progress_obj.progress = int(current_progress)
+            stdout = process.stdout.readline()
+            stderr = process.stderr.readline()
 
-                    if "download" in current_line_split:
-                        if current_line_split[1] != current_object:
-                            current_object = current_line_split[1]
-
-                    if print_stdout:
-                        sys.stdout.write(current_line)
-                        sys.stdout.flush()
-
-            if select.select([process.stderr], [], [], 0.1)[0]:
-                stderr = process.stderr.readline()
-                if stderr:
+            if stderr and print_stdout:
+                sys.stderr.write(stderr)
+                sys.stderr.flush()
+                if progress_obj:
                     progress_obj.failed = True
-                    sys.stderr.write(stderr)
-                    sys.stderr.flush()
+                    continue
 
-        if print_stdout:
-            for line in process.stdout:
-                sys.stdout.write(line)
+            if not stdout:
+                continue
+
+            if stdout and progress_obj:
+                current_line_split = stdout.split()
+                for i in current_line_split:
+                    if "%" in i:
+                        current_progress_r = float(i.replace("%", ""))
+                        if current_progress_r != current_progress:
+                            current_progress = current_progress_r
+                            progress_obj.progress = int(current_progress)
+
+                if "download" in current_line_split:
+                    if current_line_split[1] != current_object:
+                        current_object = current_line_split[1]
+
+            if print_stdout:
+                sys.stdout.write(stdout)
                 sys.stdout.flush()
 
-            for line in process.stderr:
-                sys.stderr.write(line)
-                sys.stderr.flush()
-
-        process.stdout.close()
-        process.stderr.close()
-
-    # TODO i think fs dose not return progress (needs testing with a big zip)
-    # TODO the lakeFs functions need to be able to run without progress_obj
     def clone_element(
         self,
-        progress_obj: Union[worker.BaseProgressItem, worker.ProgressItem],
+        progress_obj: Optional[Union[worker.BaseProgressItem, worker.ProgressItem]],
         lake_fs_object_uir: str,
         dist_path: str,
+        print_stdout: bool = False,
     ):
         process = self._run(["fs", "download", lake_fs_object_uir, dist_path])
+
+        if progress_obj:
+            progress_obj.progress = -1
+
         while process.poll() is None:
-            if select.select([process.stdout], [], [], 0.1)[0]:
-                current_line = process.stdout.readline()
-                if current_line:
-                    progress_obj.progress = -1
-            if process.stderr.readline():
-                progress_obj.failed = True
+            stdout = process.stdout.readline()
+            stderr = process.stderr.readline()
+
+            if stderr:
+                if print_stdout:
+                    sys.stderr.write(stderr)
+                    sys.stderr.flush()
+                if progress_obj:
+                    progress_obj.failed = True
+                continue
+
+            if stdout and print_stdout:
+                sys.stdout.write(stdout)
+                sys.stdout.flush()
 
     def commit_local(self, commit_message: str, local_path=None):
         process = self._run(

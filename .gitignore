@@ -5,6 +5,7 @@ AyonBinDistro_cicd/
 test.py
 test/test_with_lake_ctl_server.py
 test/.lakectl.yaml
+test/test.yaml
 
 # ignored by lakectl local
 dell/down_b3/*
@@ -27,4 +28,6 @@ dell/down_b9/*
 !dell/down_b9/.lakefs_ref.yaml
 dell/down_b0/*
 !dell/down_b0/.lakefs_ref.yaml
+dell/*
+!dell/.lakefs_ref.yaml
 # End ignored by lakectl local
