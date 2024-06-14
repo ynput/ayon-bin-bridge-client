@@ -50,7 +50,15 @@ def create_config(
 
 # TODO test windows version
 class LakeCtl:
-    def __init__(self, conf_file_path=None, base_uri_oberwrite=None) -> None:
+    def __init__(
+        self,
+        conf_file_path=None,
+        base_uri_oberwrite=None,
+        access_key_id: Optional[str] = None,
+        secret_access_key: Optional[str] = None,
+        server_url: Optional[str] = None,
+    ) -> None:
+
         self.bin_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "bin")
 
         if platform.system().lower() == "windows":
@@ -81,10 +89,16 @@ class LakeCtl:
         else:
             self.base_uri = None
 
-        if conf_file_path:
+        if access_key_id and secret_access_key and server_url:
+            os.environ["LAKECTL_SERVER_ENDPOINT_URL"] = server_url
+            os.environ["LAKECTL_CREDENTIALS_ACCESS_KEY_ID"] = access_key_id
+            os.environ["LAKECTL_CREDENTIALS_SECRET_ACCESS_KEY"] = secret_access_key
+
+        elif conf_file_path:
             self.conf_file = os.path.abspath(conf_file_path)
         else:
             self.conf_file = os.path.join(self.bin_path, ".lakectl.yaml")
+
         self.data = ""
 
     def _run(
