@@ -135,7 +135,7 @@ class Controller:
         dependency_id=None,
         icon_path: Optional[str] = None,
         progress_title: Optional[str] = None,
-    ):
+    ) -> WorkItem:
         if icon_path or progress_title:
             progress_item = ProgressItem(title=progress_title, icon_path=icon_path)
         else:
@@ -151,6 +151,8 @@ class Controller:
 
         self._work_items_by_id_hex[item.id] = item
         self._progress_items_by_work_item_id_hex[item.id] = progress_item
+
+        return item
 
     def add_work_item(self, work_item_instance: WorkItem):
         self._work_items_by_id_hex[work_item_instance.id] = work_item_instance
@@ -215,14 +217,3 @@ class Controller:
         if self._work_started and not self._work_finished:
             return True
         return False
-
-    # def _start_thread(self, work_item: WorkItem):
-    #     """this function start a thread and appends the thread to the self._threads_by_work_item_id dict.
-    #     this function dose not run any tests
-    #
-    #     Args:
-    #         work_item:
-    #     """
-    #     thread = threading.Thread(target=work_item.start)
-    #     thread.start()
-    #     self._threads_by_work_item_id[work_item.id] = thread
