@@ -1,6 +1,5 @@
 import random
 import os
-from re import T
 from qtpy import QtWidgets, QtCore, QtGui
 from ..work_handler import worker
 
@@ -19,7 +18,7 @@ with open(os.path.join(STYLE_SHEET_DIR, "progress_finished_style.qss"), "r") as 
     FINISHED_STYLE_SHEET = f.read()
 
 
-class AyonProgressBar(QtWidgets.QWidget):
+class ProgressBar(QtWidgets.QWidget):
 
     def __init__(self, progress, parent):
 
@@ -67,9 +66,10 @@ class AyonProgressBar(QtWidgets.QWidget):
             self._progress_bar.setFormat("Failed")
             self._progress_bar.setStyleSheet(FAILED_STYLE_SHEET)
             return
-
         if self._progress.progress == -1:
-            self._progress_bar.setValue(int(random.uniform(45, 55)))
+            self._progress_bar.setValue(
+                self._progress_bar.value() + random.uniform(-1, 3)
+            )
             self._progress_bar.setFormat("Processing")
             return
 
@@ -77,7 +77,7 @@ class AyonProgressBar(QtWidgets.QWidget):
         self._progress_bar.setFormat(f"{self._progress.progress}%")
 
 
-class AyonMultiProgressWidget(QtWidgets.QWidget):
+class MultiProgressWidget(QtWidgets.QWidget):
 
     def __init__(self, controller, parent, delet_progress_bar_on_finish: bool = True):
         super().__init__(parent)
@@ -126,7 +126,7 @@ class AyonMultiProgressWidget(QtWidgets.QWidget):
                     progress_bar_instance.progress_bar.setFormat("Done")
 
     def _add_progress_bar(self, item_id, progress):
-        progress_bar_instance = AyonProgressBar(progress, self)
+        progress_bar_instance = ProgressBar(progress, self)
         progress_bar_instance.progress_bar.setStyleSheet(DEFAULT_STYLE_SHEET)
 
         self._progress_bar_by_id[item_id] = progress_bar_instance
@@ -138,12 +138,18 @@ class AyonMultiProgressWidget(QtWidgets.QWidget):
 
 class ProgressDialog(QtWidgets.QDialog):
 
-    def __init__(self, controller, delet_progress_bar_on_finish: bool = True):
+    def __init__(
+        self,
+        controller,
+        delet_progress_bar_on_finish: bool = True,
+        close_on_finish: bool = False,
+    ):
         super().__init__()
 
         self._controller: worker.Controller = controller
+        self._close_on_finish = close_on_finish
 
-        widget = AyonMultiProgressWidget(
+        widget = MultiProgressWidget(
             controller=controller,
             parent=self,
             delet_progress_bar_on_finish=delet_progress_bar_on_finish,
@@ -165,6 +171,8 @@ class ProgressDialog(QtWidgets.QDialog):
     def _update_progress_elements(self):
         if self._controller.work_finished:
             self._timer.stop()
+            if self._close_on_finish:
+                self.close()
             return
 
         self._widget.update_progress_bars()
