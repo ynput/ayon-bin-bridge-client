@@ -1,5 +1,6 @@
 import random
 import os
+import time
 from qtpy import QtWidgets, QtCore, QtGui
 from ..work_handler import worker
 
@@ -143,11 +144,13 @@ class ProgressDialog(QtWidgets.QDialog):
         controller,
         delet_progress_bar_on_finish: bool = True,
         close_on_finish: bool = False,
+        auto_close_timeout: float = 0.5,
     ):
         super().__init__()
 
         self._controller: worker.Controller = controller
         self._close_on_finish = close_on_finish
+        self._auto_close_timeout = auto_close_timeout
 
         widget = MultiProgressWidget(
             controller=controller,
@@ -172,6 +175,7 @@ class ProgressDialog(QtWidgets.QDialog):
         if self._controller.work_finished:
             self._timer.stop()
             if self._close_on_finish:
+                time.sleep(self._auto_close_timeout)
                 self.close()
             return
 
