@@ -84,3 +84,17 @@ def test_no_delet_no_progress():
 
     ui.start()
     sys.exit(app.exec_())
+
+
+def test_with_dep():
+
+    controller = worker.Controller()
+
+    app = QtWidgets.QApplication(sys.argv)
+    ui = progress_ui.ProgressDialog(controller, close_on_finish=True)
+
+    itemA = controller.construct_work_item(func=test_func)
+    controller.construct_work_item(func=test_func, dependency_id=[itemA.get_uuid()])
+
+    ui.start()
+    sys.exit(app.exec_())

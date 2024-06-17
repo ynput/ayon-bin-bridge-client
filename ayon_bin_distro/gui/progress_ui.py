@@ -62,11 +62,17 @@ class ProgressBar(QtWidgets.QWidget):
         return self._progress_bar
 
     def update_progress(self):
+        if not self._progress.started:
+            self.progress_bar.setValue(0)
+            self._progress_bar.setFormat("Waiting")
+            return
+
         if self._progress.is_failed:
             self._progress_bar.setValue(100)
             self._progress_bar.setFormat("Failed")
             self._progress_bar.setStyleSheet(FAILED_STYLE_SHEET)
             return
+
         if self._progress.progress == -1:
             self._progress_bar.setValue(
                 self._progress_bar.value() + random.uniform(-1, 3)
