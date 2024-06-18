@@ -3,56 +3,54 @@ import subprocess
 import os
 import shutil
 from typing import Optional, Union
-import yaml
 import platform
 import fcntl
 
 from ..work_handler import worker
 
 
-def create_config(
-    dist_path: str,
-    access_key_id: str,
-    secret_access_key: str,
-    server_url: str,
-    enable_retries: bool = True,
-    retrie_max_attempts: int = 4,
-    retrie_max_wait: str = "30s",
-    retrie_min_wait: str = "200ms",
-) -> Union[str, None]:
-    if not dist_path.endswith(".yaml"):
-        return None
-    data = {
-        "credentials": {
-            "access_key_id": access_key_id,
-            "secret_access_key": secret_access_key,
-        },
-        "metastore": {
-            "glue": {"catalog_id": ""},
-            "hive": {"db_location_uri": "file:/user/hive/warehouse/", "uri": ""},
-        },
-        "server": {
-            "endpoint_url": server_url,
-            "retries": {
-                "enabled": enable_retries,
-                "max_attempts": retrie_max_attempts,
-                "max_wait_interval": retrie_max_wait,
-                "min_wait_interval": retrie_min_wait,
-            },
-        },
-    }
-
-    with open(dist_path, "w") as file:
-        yaml.dump(data, file, default_flow_style=True)
-
-    return dist_path
+# def create_config(
+#     dist_path: str,
+#     access_key_id: str,
+#     secret_access_key: str,
+#     server_url: str,
+#     enable_retries: bool = True,
+#     retrie_max_attempts: int = 4,
+#     retrie_max_wait: str = "30s",
+#     retrie_min_wait: str = "200ms",
+# ) -> Union[str, None]:
+#     if not dist_path.endswith(".yaml"):
+#         return None
+#     data = {
+#         "credentials": {
+#             "access_key_id": access_key_id,
+#             "secret_access_key": secret_access_key,
+#         },
+#         "metastore": {
+#             "glue": {"catalog_id": ""},
+#             "hive": {"db_location_uri": "file:/user/hive/warehouse/", "uri": ""},
+#         },
+#         "server": {
+#             "endpoint_url": server_url,
+#             "retries": {
+#                 "enabled": enable_retries,
+#                 "max_attempts": retrie_max_attempts,
+#                 "max_wait_interval": retrie_max_wait,
+#                 "min_wait_interval": retrie_min_wait,
+#             },
+#         },
+#     }
+#
+#     with open(dist_path, "w") as file:
+#         yaml.dump(data, file, default_flow_style=True)
+#
+#     return dist_path
 
 
 # TODO test windows version
 class LakeCtl:
     def __init__(
         self,
-        conf_file_path=None,
         base_uri_oberwrite=None,
         access_key_id: Optional[str] = None,
         secret_access_key: Optional[str] = None,
@@ -70,19 +68,8 @@ class LakeCtl:
                 "only windows and linux are suported at the current time"
             )
 
-        self.conf_file = os.path.join(os.path.dirname(__file__), "bin", ".lakectl.yaml")
-
         if not os.path.exists(self.wrapped_lakectl):
             raise RuntimeError("the lakectl exe is missing")
-
-        if not os.path.exists(self.conf_file):
-            raise RuntimeError("the lakectl config file is missing")
-
-        with open(self.conf_file, "r") as file:
-            config = yaml.safe_load(file)
-            self.access_key_id = config["credentials"]["access_key_id"]
-            self.secret_access_key = config["credentials"]["secret_access_key"]
-            self.endpoint_url = config["server"]["endpoint_url"]
 
         if base_uri_oberwrite:
             self.base_uri = base_uri_oberwrite
@@ -93,11 +80,6 @@ class LakeCtl:
             os.environ["LAKECTL_SERVER_ENDPOINT_URL"] = server_url
             os.environ["LAKECTL_CREDENTIALS_ACCESS_KEY_ID"] = access_key_id
             os.environ["LAKECTL_CREDENTIALS_SECRET_ACCESS_KEY"] = secret_access_key
-
-        elif conf_file_path:
-            self.conf_file = os.path.abspath(conf_file_path)
-        else:
-            self.conf_file = os.path.join(self.bin_path, ".lakectl.yaml")
 
         self.data = ""
 
@@ -111,8 +93,6 @@ class LakeCtl:
         process = subprocess.Popen(
             [
                 self.wrapped_lakectl,
-                "--config",
-                f"{self.conf_file}",
                 *base_uri_command,
                 *lakectl_command,
             ],
