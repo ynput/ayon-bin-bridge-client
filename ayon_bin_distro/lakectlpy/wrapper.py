@@ -196,7 +196,7 @@ class LakeCtl:
 
             if "Successfully cloned" in stdout:
                 dest_dir = os.path.abspath(
-                    stdout.split(" to ")[-1][:-2]
+                    stdout.split(" to ")[-1][:-2].strip()
                 )  # we split the string because its constructed as a sentence with a . At then end
 
             if print_stdout:
@@ -228,7 +228,7 @@ class LakeCtl:
                     progress_obj.failed = True
                 continue
             if "download:" in stdout and "to" in stdout:
-                dest_path = os.path.abspath(stdout.split(" to ")[-1])
+                dest_path = os.path.abspath(stdout.split(" to ")[-1].strip())
             if stdout and print_stdout:
                 sys.stdout.write(stdout)
                 sys.stdout.flush()
