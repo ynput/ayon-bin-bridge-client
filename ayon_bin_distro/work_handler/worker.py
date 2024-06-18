@@ -1,6 +1,7 @@
 import time
 import uuid
 import threading
+import inspect
 from typing import Callable, Any, List, Dict, Optional, Set, Union
 
 
@@ -86,6 +87,14 @@ class WorkItem:
     def get_uuid(self):
         return self._id
 
+    def connect_func_return(self):
+        """this function returns what ever the WorkItem._func returns. but its not blocking. it exists so you can have a dependent WorkItem that can use the function return as a value.
+
+        Returns:
+
+        """
+        return self._func_return
+
     @property
     def func_return(self, check_delay: float = 0.1):
         """this is a blocking function that checks the return off self._func() in a while loop.
@@ -108,10 +117,26 @@ class WorkItem:
     def start(self):
         self._progress_item.started = True
         try:
+            if self._args:
+                for index in range(len(self._args)):
+                    arg = self._args[index]
+                    if (
+                        inspect.ismethod(arg)
+                        and arg.__func__ == WorkItem.connect_func_return
+                    ):
+                        self._args[index] = arg()
+            if self._kwargs:
+                for key in self._kwargs:
+                    arg = self._kwargs[key]
+                    if (
+                        inspect.ismethod(arg)
+                        and arg.__func__ == WorkItem.connect_func_return
+                    ):
+                        self._kwargs[key] = arg()
+
             self._func_return = self._func(
                 self._progress_item, *self._args, **self._kwargs
             )
-            # print("dsdf", self._func(self._progress_item, *self._args, **self._kwargs))
         except BaseException as e:
             self._progress_item.failed = True
             print(f"Exception occurred: {e}")
