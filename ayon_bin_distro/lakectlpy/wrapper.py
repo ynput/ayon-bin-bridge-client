@@ -154,7 +154,7 @@ class LakeCtl:
         dist_path: str,
         exists_okay=False,
         print_stdout: bool = False,
-    ) -> None:
+    ) -> str:
 
         if dist_path and exists_okay:
             if os.path.exists(dist_path):
@@ -165,6 +165,7 @@ class LakeCtl:
 
         current_progress = None
         current_object = None
+        dest_dir = ""
 
         while process.poll() is None:
             stdout = process.stdout.readline()
@@ -193,9 +194,15 @@ class LakeCtl:
                     if current_line_split[1] != current_object:
                         current_object = current_line_split[1]
 
+            if "Successfully cloned" in stdout:
+                dest_dir = os.path.abspath(
+                    stdout.split(" to ")[-1][:-2]
+                )  # we split the string because its constructed as a sentence with a . At then end
+
             if print_stdout:
                 sys.stdout.write(stdout)
                 sys.stdout.flush()
+        return dest_dir
 
     def clone_element(
         self,
@@ -203,12 +210,12 @@ class LakeCtl:
         lake_fs_object_uir: str,
         dist_path: str,
         print_stdout: bool = False,
-    ):
+    ) -> str:
         process = self._run(["fs", "download", lake_fs_object_uir, dist_path])
 
         if progress_obj:
             progress_obj.progress = -1
-
+        dest_path = ""
         while process.poll() is None:
             stdout = process.stdout.readline()
             stderr = process.stderr.readline()
@@ -220,10 +227,12 @@ class LakeCtl:
                 if progress_obj:
                     progress_obj.failed = True
                 continue
-
+            if "download:" in stdout and "to" in stdout:
+                dest_path = os.path.abspath(stdout.split(" to ")[-1])
             if stdout and print_stdout:
                 sys.stdout.write(stdout)
                 sys.stdout.flush()
+        return dest_path
 
     def commit_local(self, commit_message: str, local_path=None):
         process = self._run(
