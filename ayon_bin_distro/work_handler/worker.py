@@ -87,7 +87,7 @@ class WorkItem:
         return self._id
 
     @property
-    def func_return(self):
+    def func_return(self, check_delay: float = 0.1):
         """this is a blocking function that checks the return off self._func() in a while loop.
         This function dose not care if the item has been started
 
@@ -100,6 +100,7 @@ class WorkItem:
                 return -1
             if self._progress_item.finished:
                 return self._func_return
+            time.sleep(check_delay)
 
     def get_progress_item(self):
         return self._progress_item
