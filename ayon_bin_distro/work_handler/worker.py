@@ -77,6 +77,7 @@ class WorkItem:
         self._func = func
         self._args = args
         self._kwargs = kwargs
+        self._func_return = None
 
     @property
     def id(self):
@@ -85,15 +86,34 @@ class WorkItem:
     def get_uuid(self):
         return self._id
 
+    @property
+    def func_return(self):
+        """this is a blocking function that checks the return off self._func() in a while loop.
+        This function dose not care if the item has been started
+
+
+        Returns: if failed: -1, if finished: func()->Return[Any]
+
+        """
+        while True:
+            if self._progress_item.failed:
+                return -1
+            if self._progress_item.finished:
+                return self._func_return
+
     def get_progress_item(self):
         return self._progress_item
 
     def start(self):
         self._progress_item.started = True
         try:
-            self._func(self._progress_item, *self._args, **self._kwargs)
-        except BaseException:
+            self._func_return = self._func(
+                self._progress_item, *self._args, **self._kwargs
+            )
+            # print("dsdf", self._func(self._progress_item, *self._args, **self._kwargs))
+        except BaseException as e:
             self._progress_item.failed = True
+            print(f"Exception occurred: {e}")
             return
 
         self._progress_item.finished = True
