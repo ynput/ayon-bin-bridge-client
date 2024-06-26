@@ -19,6 +19,7 @@ def extract_zip_file(progress_item, zip_file_path: str, dest_dir: str) -> str:
     return os.path.join(dest_dir, foulder_name)
 
 
+# TODO add progress_item optionm
 def zip_folder(folder_path: str, output_path: str) -> Union[str, bool]:
 
     if not os.path.isdir(folder_path):

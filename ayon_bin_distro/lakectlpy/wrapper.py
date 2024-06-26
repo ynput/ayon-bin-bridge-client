@@ -63,6 +63,7 @@ class LakeCtl:
             self.wrapped_lakectl = os.path.join(self.bin_path, "lakectl.exe")
         elif platform.system().lower() == "linux":
             self.wrapped_lakectl = os.path.join(self.bin_path, "lakectl")
+            os.chmod(self.wrapped_lakectl, 0o755)
         else:
             raise NotImplementedError(
                 "only windows and linux are suported at the current time"

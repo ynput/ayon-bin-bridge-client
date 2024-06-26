@@ -75,7 +75,9 @@ def test_no_delet_no_progress():
 
     app = QtWidgets.QApplication(sys.argv)
     controller = worker.Controller()
-    ui = progress_ui.ProgressDialog(controller, close_on_finish=True)
+    ui = progress_ui.ProgressDialog(
+        controller, close_on_finish=False, delet_progress_bar_on_finish=False
+    )
 
     for i in range(100):
         controller.construct_work_item(
