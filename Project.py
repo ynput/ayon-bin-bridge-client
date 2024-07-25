@@ -1,3 +1,4 @@
+from test import test_object_infos
 from ayon_cicd_tools.AyonCiCd import Project
 
 AyonBinDistroPrj = Project.Project("AyonBinDistro")
@@ -34,6 +35,10 @@ test_without_progess_titile.add_funcs(
     tests_worker.test_with_fake_data_without_progess_titile
 )
 AyonBinDistroPrj.add_stage(test_without_progess_titile)
+
+test_get_object_metadata_stage = Project.Stage("test_get_object_metadata")
+test_get_object_metadata_stage.add_funcs(test_object_infos.test_get_object_metadata)
+AyonBinDistroPrj.add_stage(test_get_object_metadata_stage)
 
 AyonBinDistroPrj.creat_stage_group(
     "test_worker_all", test_worker_with_progress_title, test_without_progess_titile

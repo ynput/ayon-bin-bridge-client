@@ -2,7 +2,7 @@ import sys
 import subprocess
 import os
 import shutil
-from typing import Optional, Union
+from typing import Dict, Optional, Union
 import platform
 import fcntl
 
@@ -184,6 +184,16 @@ class LakeCtl:
                 sys.stdout.write(stdout)
                 sys.stdout.flush()
         return dest_dir
+
+    def get_element_info(self, lake_fs_object_uir:str) -> Dict[str,str]:
+        data_dict = {}
+        process = self._run(["fs", "stat", lake_fs_object_uir], non_blocking_stdout=False)
+
+        while process.poll() is None:
+                data_line = process.stdout.readline()
+                data_parts = [entry.strip() for entry in str(data_line).split(":")]
+                data_dict[data_parts[0]] = " ".join(data_parts[1:])
+        return data_dict
 
     def clone_element(
         self,
