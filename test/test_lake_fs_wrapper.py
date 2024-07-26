@@ -11,9 +11,9 @@ secret_access_key=input("lakeFs secret_access_key: ")
 
 ctl = wrapper.LakeCtl(base_uri_oberwrite="https://lake.ayon.cloud", access_key_id=access_key_id, secret_access_key=secret_access_key)
 
-test_object_on_the_repo = "15-44-17.png"
+test_object_on_the_repo = "test_png.png"
 lake_fs_prj = "lakefs://lake-fs-cicd-test-prj/main/"
-lake_fs_object = "lakefs://lake-fs-cicd-test-prj/main/Screenshot from 2024-03-17 15-44-17.png"
+lake_fs_object = "lakefs://lake-fs-cicd-test-prj/main/test_png.png"
 
 
 temp_dir = os.path.join(os.path.dirname(__file__),"temp")
