@@ -9,7 +9,7 @@ import os
 access_key_id=input("lakeFs access_key_id: ") 
 secret_access_key=input("lakeFs secret_access_key: ")
 
-ctl = wrapper.LakeCtl(base_uri_oberwrite="https://lake.ayon.cloud", )
+ctl = wrapper.LakeCtl(base_uri_oberwrite="https://lake.ayon.cloud", access_key_id=access_key_id, secret_access_key=secret_access_key)
 
 test_object_on_the_repo = "15-44-17.png"
 lake_fs_prj = "lakefs://lake-fs-cicd-test-prj/main/"

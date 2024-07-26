@@ -40,10 +40,12 @@ class LakeCtl:
         else:
             self.base_uri = None
 
-        if access_key_id and secret_access_key and server_url:
-            os.environ["LAKECTL_SERVER_ENDPOINT_URL"] = server_url
+        if access_key_id:
             os.environ["LAKECTL_CREDENTIALS_ACCESS_KEY_ID"] = access_key_id
+        if secret_access_key: 
             os.environ["LAKECTL_CREDENTIALS_SECRET_ACCESS_KEY"] = secret_access_key
+        if server_url:
+            os.environ["LAKECTL_SERVER_ENDPOINT_URL"] = server_url
 
         self.data = ""
 
