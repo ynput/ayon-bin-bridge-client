@@ -30,4 +30,12 @@ dell/down_b0/*
 !dell/down_b0/.lakefs_ref.yaml
 dell/*
 !dell/.lakefs_ref.yaml
+test/temp/repo_clone_2024-07-26 08:46:15.739568/*
+!test/temp/repo_clone_2024-07-26 08:46:15.739568/.lakefs_ref.yaml
+test/temp/*
+!test/temp/.lakefs_ref.yaml
+test/temp/repo_clone/*
+!test/temp/repo_clone/.lakefs_ref.yaml
+test/temp/commit_local_repo_temp/*
+!test/temp/commit_local_repo_temp/.lakefs_ref.yaml
 # End ignored by lakectl local

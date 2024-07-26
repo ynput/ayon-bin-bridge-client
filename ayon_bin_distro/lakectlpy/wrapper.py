@@ -4,48 +4,11 @@ import os
 import shutil
 from typing import Dict, Optional, Union
 import platform
-import fcntl
 
 from ..work_handler import worker
 
-
-# def create_config(
-#     dist_path: str,
-#     access_key_id: str,
-#     secret_access_key: str,
-#     server_url: str,
-#     enable_retries: bool = True,
-#     retrie_max_attempts: int = 4,
-#     retrie_max_wait: str = "30s",
-#     retrie_min_wait: str = "200ms",
-# ) -> Union[str, None]:
-#     if not dist_path.endswith(".yaml"):
-#         return None
-#     data = {
-#         "credentials": {
-#             "access_key_id": access_key_id,
-#             "secret_access_key": secret_access_key,
-#         },
-#         "metastore": {
-#             "glue": {"catalog_id": ""},
-#             "hive": {"db_location_uri": "file:/user/hive/warehouse/", "uri": ""},
-#         },
-#         "server": {
-#             "endpoint_url": server_url,
-#             "retries": {
-#                 "enabled": enable_retries,
-#                 "max_attempts": retrie_max_attempts,
-#                 "max_wait_interval": retrie_max_wait,
-#                 "min_wait_interval": retrie_min_wait,
-#             },
-#         },
-#     }
-#
-#     with open(dist_path, "w") as file:
-#         yaml.dump(data, file, default_flow_style=True)
-#
-#     return dist_path
-
+if sys.platform.lower() =="linux":
+    import fcntl
 
 # TODO test windows version
 class LakeCtl:
@@ -102,7 +65,8 @@ class LakeCtl:
             universal_newlines=True,
             cwd=cwd,
         )
-        if process.stdout and process.stderr and non_blocking_stdout:
+        # TODO implement non blocking stderr stdout pull for windows 
+        if process.stdout and process.stderr and non_blocking_stdout and sys.platform.lower() =="linux":
             flags = fcntl.fcntl(process.stdout.fileno(), fcntl.F_GETFL)
             fcntl.fcntl(process.stdout.fileno(), fcntl.F_SETFL, flags | os.O_NONBLOCK)
             flags = fcntl.fcntl(process.stderr.fileno(), fcntl.F_GETFL)
@@ -143,7 +107,6 @@ class LakeCtl:
             os.makedirs(dist_path)
 
         process = self._run(["local", "clone", repo_branch_uri], cwd=dist_path)
-
         current_progress = None
         current_object = None
         dest_dir = ""
