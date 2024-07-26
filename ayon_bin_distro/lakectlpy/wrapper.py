@@ -81,6 +81,10 @@ class LakeCtl:
 
         while process.poll() is None:
             sys.stdout.write(process.stdout.readline())
+        
+
+
+            
 
     def list_repo_objects(self, lake_fs_repo_uri: str):
         process = self._run(
