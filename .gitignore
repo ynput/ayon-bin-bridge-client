@@ -38,4 +38,8 @@ test/temp/repo_clone/*
 !test/temp/repo_clone/.lakefs_ref.yaml
 test/temp/commit_local_repo_temp/*
 !test/temp/commit_local_repo_temp/.lakefs_ref.yaml
+test\temp\repo_clone\*
+!test\temp\repo_clone\.lakefs_ref.yaml
+test\temp\commit_local_repo_temp\*
+!test\temp\commit_local_repo_temp\.lakefs_ref.yaml
 # End ignored by lakectl local

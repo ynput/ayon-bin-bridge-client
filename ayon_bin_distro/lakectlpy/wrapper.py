@@ -162,6 +162,7 @@ class LakeCtl:
                 data_line = process.stdout.readline()
                 data_parts = [entry.strip() for entry in str(data_line).split(":")]
                 data_dict[data_parts[0]] = " ".join(data_parts[1:])
+
         return data_dict
 
     def clone_element(
