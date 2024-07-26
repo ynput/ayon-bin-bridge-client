@@ -1,17 +1,18 @@
-from test import test_object_infos
-from test import test_lake_fs_wrapper
 from ayon_cicd_tools.AyonCiCd import Project
 
 AyonBinDistroPrj = Project.Project("AyonBinDistro")
 
 AyonBinDistroPrj.add_pip_package("black")
 AyonBinDistroPrj.add_pip_package("QtPy")
+AyonBinDistroPrj.add_pip_package("PyQt5")
 AyonBinDistroPrj.add_pip_package("lakefs")
 AyonBinDistroPrj.add_pip_package("lakefs-sdk")
 
+AyonBinDistroPrj.setup()
 
 from test import tests_ui, tests_worker
-
+from test import test_object_infos
+from test import test_lake_fs_wrapper
 
 test_without_icon = Project.Stage("test_without_icon")
 test_without_icon.add_funcs(tests_ui.test_with_fake_data_no_icon)
@@ -42,7 +43,7 @@ test_get_object_metadata_stage.add_funcs(test_object_infos.test_get_object_metad
 AyonBinDistroPrj.add_stage(test_get_object_metadata_stage)
 
 test_lake_fs_wrapper_stage = Project.Stage("test_lake_fs_wrapper")
-test_lake_fs_wrapper_stage.add_funcs(test_lake_fs_wrapper.test_get_object_metadata,test_lake_fs_wrapper.test_clone_local ,test_lake_fs_wrapper.test_list_repo_objects, test_lake_fs_wrapper.test_clone_elemente, test_lake_fs_wrapper.test_commit_local)
+test_lake_fs_wrapper_stage.add_funcs(test_lake_fs_wrapper.test_help, test_lake_fs_wrapper.test_get_object_metadata,test_lake_fs_wrapper.test_clone_local ,test_lake_fs_wrapper.test_list_repo_objects, test_lake_fs_wrapper.test_clone_elemente, test_lake_fs_wrapper.test_commit_local)
 AyonBinDistroPrj.add_stage(test_lake_fs_wrapper_stage)
 
 AyonBinDistroPrj.creat_stage_group(
