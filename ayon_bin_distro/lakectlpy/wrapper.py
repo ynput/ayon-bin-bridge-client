@@ -21,7 +21,7 @@ class LakeCtl:
     ) -> None:
 
         self.bin_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "bin")
-
+        self.lake_config = os.path.join(self.bin_path, ".lakectl.yaml")
         if platform.system().lower() == "windows":
             self.wrapped_lakectl = os.path.join(self.bin_path, "lakectl.exe")
         elif platform.system().lower() == "linux":
@@ -59,6 +59,7 @@ class LakeCtl:
         process = subprocess.Popen(
             [
                 self.wrapped_lakectl,
+                "--base-uri", self.lake_config,
                 *base_uri_command,
                 *lakectl_command,
             ],
