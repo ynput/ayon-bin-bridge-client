@@ -63,7 +63,7 @@ class WorkItem:
 
     def __init__(
         self,
-        func: Callable[[Union[BaseProgressItem, ProgressItem], Any], Any],
+        func: Callable[[Any], Any],
         args: Optional[List[Any]] = [],
         kwargs: dict = {},
         progress_item_instance: Union[
@@ -177,7 +177,7 @@ class Controller:
         self,
         func: Callable[[Any], Any],
         args: Optional[List[Any]] = [],
-        kwargs: Optional[Dict[Any, Any]] = {},
+        kwargs: Dict[Any, Any] = {},
         dependency_id=None,
         icon_path: Optional[str] = None,
         progress_title: Optional[str] = None,
