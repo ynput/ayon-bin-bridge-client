@@ -1,9 +1,9 @@
+import inspect
+import threading
 import time
 import uuid
-import threading
-import inspect
-from typing import Callable, Any, List, Dict, Optional, Set, Union
 
+from typing import Any, Callable, Dict, List, Optional, Set, Union
 
 class BaseProgressItem:
     """Base class for ProgressItem. Holds common attributes and initialization logic."""

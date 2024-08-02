@@ -1,7 +1,9 @@
-import random
 import os
+import random
 import time
+
 from qtpy import QtWidgets, QtCore, QtGui
+
 from ..work_handler import worker
 
 STYLE_SHEET_DIR = os.path.join(os.path.dirname(__file__), "style_data")
