@@ -50,5 +50,7 @@ AyonBinDistroPrj.creat_stage_group(
     "test_worker_all", test_worker_with_progress_title, test_without_progess_titile
 )
 
+AyonBinDistroPrj.creat_stage_group("GH_Test_Main", test_lake_fs_wrapper_stage)
+
 with AyonBinDistroPrj as PRJ:
     PRJ.make_project_cli_available()

@@ -5,9 +5,13 @@ from ayon_bin_distro.lakectlpy import wrapper
 from ayon_cicd_tools.AyonCiCd import helpers
 import os
 
+access_key_id=os.environ.get("LAKEFS_ACCES_KEY_ID")
+secret_access_key=os.environ.get("LAKEFS_ACCES_KEY")
 
-access_key_id=input("lakeFs access_key_id: ") 
-secret_access_key=input("lakeFs secret_access_key: ")
+if not access_key_id:
+    access_key_id=input("lakeFs access_key_id: ") 
+if not secret_access_key:
+    secret_access_key=input("lakeFs secret_access_key: ")
 
 ctl = wrapper.LakeCtl(base_uri_oberwrite="https://lake.ayon.cloud", access_key_id=access_key_id, secret_access_key=secret_access_key)
 
