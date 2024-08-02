@@ -182,16 +182,17 @@ class Controller:
         icon_path: Optional[str] = None,
         progress_title: Optional[str] = None,
     ) -> WorkItem:
-        if icon_path or progress_title:
-            progress_item = ProgressItem(title=progress_title, icon_path=icon_path)
+
+        if icon_path and progress_title:
+            in_progress_item = ProgressItem(title=progress_title, icon_path=icon_path)
         else:
-            progress_item = BaseProgressItem()
+            in_progress_item = BaseProgressItem()
 
         item = WorkItem(
             func=func,
             args=args,
             kwargs=kwargs,
-            progress_item_instance=progress_item,
+            progress_item_instance=in_progress_item,
             dependency_id=dependency_id,
         )
 

@@ -1,8 +1,8 @@
-from datetime import datetime
 import shutil
+import os
+from datetime import datetime
 from ayon_bin_distro.lakectlpy import wrapper
 from ayon_cicd_tools.AyonCiCd import helpers
-import os
 
 access_key_id=os.environ.get("LAKEFS_ACCES_KEY_ID")
 secret_access_key=os.environ.get("LAKEFS_ACCES_KEY")
