@@ -81,6 +81,8 @@ class LakeCtl:
         process = self._run(["--help"])
 
         while process.poll() is None:
+            if process.stdout is None:
+                continue
             sys.stdout.write(process.stdout.readline())
         
 
@@ -93,6 +95,8 @@ class LakeCtl:
         )
         object_list = []
         while process.poll() is None:
+            if process.stdout is None:
+                continue
             stdout = process.stdout.readline()
             if stdout and "object" in stdout:
                 object_list.append(stdout.split()[-1])
@@ -119,7 +123,11 @@ class LakeCtl:
         dest_dir = ""
 
         while process.poll() is None:
+            if process.stdout is None:
+                continue
             stdout = process.stdout.readline()
+            if process.stderr is None:
+                continue
             stderr = process.stderr.readline()
 
             if stderr and print_stdout:
@@ -160,9 +168,11 @@ class LakeCtl:
         process = self._run(["fs", "stat", lake_fs_object_uir], non_blocking_stdout=False)
 
         while process.poll() is None:
-                data_line = process.stdout.readline()
-                data_parts = [entry.strip() for entry in str(data_line).split(":")]
-                data_dict[data_parts[0]] = " ".join(data_parts[1:])
+            if process.stdout is None:
+                continue
+            data_line = process.stdout.readline()
+            data_parts = [entry.strip() for entry in str(data_line).split(":")]
+            data_dict[data_parts[0]] = " ".join(data_parts[1:])
 
         return data_dict
 
@@ -179,7 +189,11 @@ class LakeCtl:
             progress_obj.progress = -1
         dest_path = ""
         while process.poll() is None:
+            if process.stdout is None:
+                continue
             stdout = process.stdout.readline()
+            if process.stderr is None:
+                continue
             stderr = process.stderr.readline()
 
             if stderr:
@@ -202,4 +216,6 @@ class LakeCtl:
         )
 
         while process.poll() is None:
+            if process.stdout is None:
+                continue
             sys.stdout.write(process.stdout.readline())
