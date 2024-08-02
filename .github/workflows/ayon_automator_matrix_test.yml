@@ -25,6 +25,9 @@ jobs:
         uses: actions/setup-python@v3
         with:
           python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          source /home/runner/work/ayon-bin-bridge-client/ayon-bin-bridge-client/AyonBinDistro_cicd/AyonBinDistro_BuildVenv/bin/activate
       - name: Automator setup PRJ 
         run: |
           python Project.py setup 
