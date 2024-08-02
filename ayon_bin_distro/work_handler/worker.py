@@ -208,7 +208,7 @@ class Controller:
         )
 
     def _can_item_be_run(self, work_item_id_hex: str) -> bool:
-        """this function checks if an work_item has a dependency's that has not finished running"""
+        """this function checks if an work_item has dependency's that has not finished running"""
 
         if work_item_id_hex in self._threads_by_work_item_id:
             return False
@@ -217,9 +217,10 @@ class Controller:
         if work_item_instance.dependency_id == None:
             return True
 
-        for dependent_item_id in work_item_instance.dependency_id:
-            if self._progress_items_by_work_item_id_hex[dependent_item_id.hex].finished:
-                return True
+        if work_item_instance.dependency_id:
+            for dependent_item_id in work_item_instance.dependency_id:
+                if self._progress_items_by_work_item_id_hex[dependent_item_id.hex].finished:
+                    return True
 
         return False
 
