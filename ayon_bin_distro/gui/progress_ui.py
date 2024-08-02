@@ -151,6 +151,7 @@ class ProgressDialog(QtWidgets.QDialog):
         delet_progress_bar_on_finish: bool = True,
         close_on_finish: bool = False,
         auto_close_timeout: float = 0.5,
+        title:str = "",
     ):
         super().__init__()
 
@@ -171,6 +172,8 @@ class ProgressDialog(QtWidgets.QDialog):
 
         self._widget = widget
         self._timer = timer
+        if title:
+            self.setWindowTitle(title) 
 
     def start(self):
         self._controller.start()
