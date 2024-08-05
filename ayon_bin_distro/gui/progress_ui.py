@@ -2,7 +2,7 @@ import os
 import random
 import time
 
-from qtpy import QtWidgets, QtCore, QtGui
+from qtpy import QtCore, QtGui, QtWidgets
 
 from ..work_handler import worker
 

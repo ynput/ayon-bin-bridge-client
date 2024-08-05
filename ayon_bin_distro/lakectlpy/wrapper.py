@@ -3,9 +3,8 @@ import platform
 import shutil
 import subprocess
 import sys
-
-
 from typing import Dict, Optional, Union
+
 from ..work_handler import worker
 
 if sys.platform.lower() == "linux":
