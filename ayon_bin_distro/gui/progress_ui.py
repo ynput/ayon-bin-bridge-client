@@ -1,7 +1,9 @@
-import random
 import os
+import random
 import time
-from qtpy import QtWidgets, QtCore, QtGui
+
+from qtpy import QtCore, QtGui, QtWidgets
+
 from ..work_handler import worker
 
 STYLE_SHEET_DIR = os.path.join(os.path.dirname(__file__), "style_data")
@@ -20,7 +22,6 @@ with open(os.path.join(STYLE_SHEET_DIR, "progress_finished_style.qss"), "r") as 
 
 
 class ProgressBar(QtWidgets.QWidget):
-
     def __init__(self, progress, parent):
 
         super().__init__(parent)
@@ -75,7 +76,7 @@ class ProgressBar(QtWidgets.QWidget):
 
         if self._progress.progress == -1:
             self._progress_bar.setValue(
-                self._progress_bar.value() + random.uniform(-1, 3)
+                self._progress_bar.value() + int(random.uniform(-1, 3))
             )
             self._progress_bar.setFormat("Processing")
             return
@@ -85,7 +86,6 @@ class ProgressBar(QtWidgets.QWidget):
 
 
 class MultiProgressWidget(QtWidgets.QWidget):
-
     def __init__(self, controller, parent, delet_progress_bar_on_finish: bool = True):
         super().__init__(parent)
 
@@ -144,13 +144,13 @@ class MultiProgressWidget(QtWidgets.QWidget):
 
 
 class ProgressDialog(QtWidgets.QDialog):
-
     def __init__(
         self,
         controller,
         delet_progress_bar_on_finish: bool = True,
         close_on_finish: bool = False,
         auto_close_timeout: float = 0.5,
+        title: str = "",
     ):
         super().__init__()
 
@@ -171,6 +171,8 @@ class ProgressDialog(QtWidgets.QDialog):
 
         self._widget = widget
         self._timer = timer
+        if title:
+            self.setWindowTitle(title)
 
     def start(self):
         self._controller.start()

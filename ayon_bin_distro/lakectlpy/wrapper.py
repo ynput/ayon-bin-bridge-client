@@ -1,14 +1,15 @@
-import sys
-import subprocess
 import os
-import shutil
-from typing import Dict, Optional, Union
 import platform
+import shutil
+import subprocess
+import sys
+from typing import Dict, Optional, Union
 
 from ..work_handler import worker
 
-if sys.platform.lower() =="linux":
+if sys.platform.lower() == "linux":
     import fcntl
+
 
 # TODO test windows version
 class LakeCtl:
@@ -42,7 +43,7 @@ class LakeCtl:
 
         if access_key_id:
             os.environ["LAKECTL_CREDENTIALS_ACCESS_KEY_ID"] = access_key_id
-        if secret_access_key: 
+        if secret_access_key:
             os.environ["LAKECTL_CREDENTIALS_SECRET_ACCESS_KEY"] = secret_access_key
         if server_url:
             os.environ["LAKECTL_SERVER_ENDPOINT_URL"] = server_url
@@ -59,7 +60,8 @@ class LakeCtl:
         process = subprocess.Popen(
             [
                 self.wrapped_lakectl,
-                "--base-uri", self.lake_config,
+                "--base-uri",
+                self.lake_config,
                 *base_uri_command,
                 *lakectl_command,
             ],
@@ -68,8 +70,13 @@ class LakeCtl:
             universal_newlines=True,
             cwd=cwd,
         )
-        # TODO implement non blocking stderr stdout pull for windows 
-        if process.stdout and process.stderr and non_blocking_stdout and sys.platform.lower() =="linux":
+        # TODO implement non blocking stderr stdout pull for windows
+        if (
+            process.stdout
+            and process.stderr
+            and non_blocking_stdout
+            and sys.platform.lower() == "linux"
+        ):
             flags = fcntl.fcntl(process.stdout.fileno(), fcntl.F_GETFL)
             fcntl.fcntl(process.stdout.fileno(), fcntl.F_SETFL, flags | os.O_NONBLOCK)
             flags = fcntl.fcntl(process.stderr.fileno(), fcntl.F_GETFL)
@@ -81,11 +88,9 @@ class LakeCtl:
         process = self._run(["--help"])
 
         while process.poll() is None:
+            if process.stdout is None:
+                continue
             sys.stdout.write(process.stdout.readline())
-        
-
-
-            
 
     def list_repo_objects(self, lake_fs_repo_uri: str):
         process = self._run(
@@ -93,6 +98,8 @@ class LakeCtl:
         )
         object_list = []
         while process.poll() is None:
+            if process.stdout is None:
+                continue
             stdout = process.stdout.readline()
             if stdout and "object" in stdout:
                 object_list.append(stdout.split()[-1])
@@ -119,7 +126,11 @@ class LakeCtl:
         dest_dir = ""
 
         while process.poll() is None:
+            if process.stdout is None:
+                continue
             stdout = process.stdout.readline()
+            if process.stderr is None:
+                continue
             stderr = process.stderr.readline()
 
             if stderr and print_stdout:
@@ -155,14 +166,18 @@ class LakeCtl:
                 sys.stdout.flush()
         return dest_dir
 
-    def get_element_info(self, lake_fs_object_uir:str) -> Dict[str,str]:
+    def get_element_info(self, lake_fs_object_uir: str) -> Dict[str, str]:
         data_dict = {}
-        process = self._run(["fs", "stat", lake_fs_object_uir], non_blocking_stdout=False)
+        process = self._run(
+            ["fs", "stat", lake_fs_object_uir], non_blocking_stdout=False
+        )
 
         while process.poll() is None:
-                data_line = process.stdout.readline()
-                data_parts = [entry.strip() for entry in str(data_line).split(":")]
-                data_dict[data_parts[0]] = " ".join(data_parts[1:])
+            if process.stdout is None:
+                continue
+            data_line = process.stdout.readline()
+            data_parts = [entry.strip() for entry in str(data_line).split(":")]
+            data_dict[data_parts[0]] = " ".join(data_parts[1:])
 
         return data_dict
 
@@ -179,7 +194,11 @@ class LakeCtl:
             progress_obj.progress = -1
         dest_path = ""
         while process.poll() is None:
+            if process.stdout is None:
+                continue
             stdout = process.stdout.readline()
+            if process.stderr is None:
+                continue
             stderr = process.stderr.readline()
 
             if stderr:
@@ -202,4 +221,6 @@ class LakeCtl:
         )
 
         while process.poll() is None:
+            if process.stdout is None:
+                continue
             sys.stdout.write(process.stdout.readline())

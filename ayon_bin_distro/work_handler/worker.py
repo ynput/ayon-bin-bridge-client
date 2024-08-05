@@ -1,8 +1,8 @@
+import inspect
+import threading
 import time
 import uuid
-import threading
-import inspect
-from typing import Callable, Any, List, Dict, Optional, Set, Union
+from typing import Any, Callable, Dict, List, Optional, Set, Union
 
 
 class BaseProgressItem:
@@ -63,7 +63,7 @@ class WorkItem:
 
     def __init__(
         self,
-        func: Callable[[Union[BaseProgressItem, ProgressItem], Any], Any],
+        func: Callable[[Any], Any],
         args: Optional[List[Any]] = [],
         kwargs: dict = {},
         progress_item_instance: Union[
@@ -146,7 +146,6 @@ class WorkItem:
 
 
 class Controller:
-
     def __init__(self):
 
         self._work_items_by_id_hex: Dict[str, WorkItem] = {}
@@ -177,12 +176,13 @@ class Controller:
         self,
         func: Callable[[Any], Any],
         args: Optional[List[Any]] = [],
-        kwargs: Optional[Dict[Any, Any]] = {},
+        kwargs: Dict[Any, Any] = {},
         dependency_id=None,
         icon_path: Optional[str] = None,
         progress_title: Optional[str] = None,
     ) -> WorkItem:
-        if icon_path or progress_title:
+        progress_item: Union[BaseProgressItem, ProgressItem]
+        if icon_path and progress_title:
             progress_item = ProgressItem(title=progress_title, icon_path=icon_path)
         else:
             progress_item = BaseProgressItem()
@@ -208,7 +208,7 @@ class Controller:
         )
 
     def _can_item_be_run(self, work_item_id_hex: str) -> bool:
-        """this function checks if an work_item has a dependency's that has not finished running"""
+        """this function checks if an work_item has dependency's that has not finished running"""
 
         if work_item_id_hex in self._threads_by_work_item_id:
             return False
@@ -217,9 +217,12 @@ class Controller:
         if work_item_instance.dependency_id == None:
             return True
 
-        for dependent_item_id in work_item_instance.dependency_id:
-            if self._progress_items_by_work_item_id_hex[dependent_item_id.hex].finished:
-                return True
+        if work_item_instance.dependency_id:
+            for dependent_item_id in work_item_instance.dependency_id:
+                if self._progress_items_by_work_item_id_hex[
+                    dependent_item_id.hex
+                ].finished:
+                    return True
 
         return False
 
