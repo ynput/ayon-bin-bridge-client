@@ -1,5 +1,4 @@
-import re
-from typing import Optional, Union
+from typing import Union
 import zipfile
 import os
 
@@ -21,7 +20,15 @@ def extract_zip_file(progress_item, zip_file_path: str, dest_dir: str) -> str:
 
 # TODO add progress_item optionm
 def zip_folder(folder_path: str, output_path: str) -> Union[str, bool]:
+    """zip a given folder to a given output path
 
+    Args:
+        folder_path: foulder to be ziped
+        output_path: zip output location (needs to end in .zip)
+
+    Returns:
+
+    """
     if not os.path.isdir(folder_path):
         return False
 

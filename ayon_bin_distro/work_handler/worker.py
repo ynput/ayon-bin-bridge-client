@@ -6,44 +6,66 @@ from typing import Any, Callable, Dict, List, Optional, Set, Union
 
 
 class BaseProgressItem:
-    """Base class for ProgressItem. Holds common attributes and initialization logic."""
 
     def __init__(
         self,
         started: bool = False,
-        progress: Optional[int] = -1,
+        progress: int = -1,
         finished: bool = False,
         failed: bool = False,
     ):
-        self._id = uuid.uuid4()
-        self.started = started
-        self.progress = progress
-        self.finished = finished
-        self.failed = failed
+        """Base class for ProgressItem's can be used in headless mode
+        Args:
+            started: bool signal that the work has started default false
+            progress: int current progress of work 0-100 default -1 signals that there will no progress updates
+            finished: bool signals that the work has finished default false
+            failed: bool signals that the work has failed default false
+        """
+        self._id: uuid.UUID = uuid.uuid4()
+        self.started: bool = started
+        self.progress: int = progress
+        self.finished: bool = finished
+        self.failed: bool = failed
 
     @property
     def is_failed(self):
+        """checks if the parent work item has failed.
+
+        Returns: bool true if failed
+
+        """
         return self.failed
 
     @property
     def id(self):
+        """get the hex value of the UUID of this class instance
+
+        Returns: UUID.hex
+
+        """
         return self._id.hex
 
     def get_uuid(self):
+        """get the UUID object of the class instance
+
+        Returns: UUID
+
+        """
         return self._id
 
 
 class ProgressItem(BaseProgressItem):
-    """ProgressItem will hold data needed to read out the progress work a WorkItem without having to interact with the work item itself
-
-    Attributes:
-        title: The title of the progress item.
-        icon: The icon path for the progress item.
-    """
 
     def __init__(
         self, title: Optional[str] = None, icon_path: Optional[str] = None, **kwargs
     ):
+        """ProgressItem will hold data needed to read out the progress work a WorkItem without having to interact with the work item itself
+
+        Args:
+            title: str ProgressItem title (will be displayed in the UI)
+            icon_path: str optional icon for the ui to use on the ProgressBar
+            **kwargs: named arguments to passed to the underlying BaseProgressItem class for __init__
+        """
         super().__init__(**kwargs)
         self.title = title
         self.icon = icon_path
@@ -82,9 +104,19 @@ class WorkItem:
 
     @property
     def id(self):
+        """get the hex representation of the UUID of this work instance
+
+        Returns: UUID.hex
+
+        """
         return self._id.hex
 
     def get_uuid(self):
+        """get the UUID objectg of this work instance
+
+        Returns: UUID
+
+        """
         return self._id
 
     def connect_func_return(self):
@@ -112,9 +144,17 @@ class WorkItem:
             time.sleep(check_delay)
 
     def get_progress_item(self):
+        """get the connected process item
+
+        Returns: Union[BaseProgressItem, ProgressItem]
+
+        """
         return self._progress_item
 
     def start(self):
+        """
+        starts the execution of this work item an starts reporting information to the connected ProgressItem
+        """
         self._progress_item.started = True
         try:
             if self._args:
@@ -147,7 +187,7 @@ class WorkItem:
 
 class Controller:
     def __init__(self):
-
+        """work controller class that organises and starts WorkItem's acroding to there dependency's grouped on separated threads depending on there dependency's"""
         self._work_items_by_id_hex: Dict[str, WorkItem] = {}
         self._progress_items_by_work_item_id_hex: Dict[
             str, Union[BaseProgressItem, ProgressItem]
@@ -157,7 +197,7 @@ class Controller:
         self._dependent_items_by_id: Set[str] = set()
         self._work_started: bool = False
         self._work_finished: bool = False
-        self._main_thread = threading.Thread
+        self._main_thread: threading.Thread = threading.Thread()
 
     def get_progress_items(self):
         """returns a list off progress items that can be read out in order to get the progress per object
@@ -169,6 +209,11 @@ class Controller:
 
     @property
     def work_finished(self):
+        """check if all WorkItem`s have finished
+
+        Returns: bool true if all WorkItem's have finished
+
+        """
         return self._work_finished
 
     # TODO find a better name for this
@@ -177,10 +222,24 @@ class Controller:
         func: Callable[[Any], Any],
         args: Optional[List[Any]] = [],
         kwargs: Dict[Any, Any] = {},
-        dependency_id=None,
+        dependency_id: Optional[List[uuid.UUID]] = None,
         icon_path: Optional[str] = None,
         progress_title: Optional[str] = None,
     ) -> WorkItem:
+        """generates a WorkItem instance and adds it to the current Controller instance
+
+        Args:
+            func: function that should be called in the work item
+            args: args for the function
+            kwargs: named args for the function
+            dependency_id: list of UUID's off WorkItem instances that this WorkItem depends on
+            icon_path: path for an icon that should be displayed in the GUI (a ProgressItem will be created for the work item if icon_path and progress_title are present if not an BaseProgressItem)
+            progress_title: title for the Progress bar to show in the GUI (a ProgressItem will be created for the work item if icon_path and progress_title are present if not an BaseProgressItem)
+
+
+        Returns: WorkItem instance that has been added to the Controller instance
+
+        """
         progress_item: Union[BaseProgressItem, ProgressItem]
         if icon_path and progress_title:
             progress_item = ProgressItem(title=progress_title, icon_path=icon_path)
@@ -201,6 +260,11 @@ class Controller:
         return item
 
     def add_work_item(self, work_item_instance: WorkItem):
+        """allows adding a manually created WorkItem instance to the Controller
+
+        Args:
+            work_item_instance: WorkItem instance
+        """
         self._work_items_by_id_hex[work_item_instance.id] = work_item_instance
 
         self._progress_items_by_work_item_id_hex[work_item_instance.id] = (
@@ -227,7 +291,7 @@ class Controller:
         return False
 
     def _start_main_loop(self):
-        """this function will start all work items in order and wait with starting work items that have dependency's"""
+        """Start WorkItem's groups by dependency and start the groups on separate threads"""
         work_items_waiting_for_start = list(
             self._work_items_by_id_hex.values()
         )  # TODO not sure if this is more than we need. we could compare the id in self._threads_by_work_item_id to see if the work item is running
@@ -256,13 +320,18 @@ class Controller:
                 break
 
     def start(self):
-        """this function is used to start execution off all work items.
+        """used to start execution off all work items.
         the _start_main_loop function is called to a different thread so this function will not block further execution
         """
         self._main_thread = threading.Thread(target=self._start_main_loop)
         self._main_thread.start()
 
     def is_running(self):
+        """check if the current Controller has running WorkItem's
+
+        Returns: true if there is one or more running WorkItem's
+
+        """
         if self._work_started and not self._work_finished:
             return True
         return False

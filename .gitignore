@@ -6,6 +6,7 @@ test.py
 test/test_with_lake_ctl_server.py
 test/.lakectl.yaml
 test/test.yaml
+Docs/docs/
 
 # ignored by lakectl local
 dell/down_b3/*
