@@ -3,7 +3,7 @@ import shutil
 from datetime import datetime
 
 from ayon_bin_distro.lakectlpy import wrapper
-from ayon_cicd_tools.AyonCiCd import helpers
+from ayon_automator.AyonCiCd import helpers
 
 access_key_id = os.environ.get("LAKEFS_ACCES_KEY_ID")
 secret_access_key = os.environ.get("LAKEFS_ACCES_KEY")
