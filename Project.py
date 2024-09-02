@@ -1,4 +1,4 @@
-from ayon_cicd_tools.AyonCiCd import Project
+from ayon_automator.AyonCiCd import Project
 
 AyonBinDistroPrj = Project.Project("AyonBinDistro")
 
