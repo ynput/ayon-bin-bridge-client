@@ -1,6 +1,6 @@
 # ayon_bin_distro.work_halnder: classes to distribute work items
 
-the work hanlder package is concerend about allowing you to create dependend
+The work hanlder package is concerend about allowing you to create dependend
 tasks and then distrusting them.
 
 this excample is one of the easy ways to use a controller and construct a work

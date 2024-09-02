@@ -60,3 +60,29 @@ sys.exit(app.exec_())
 
 Interesting to know might be. Every item in the work handler can have an
 individual icon and title.
+
+
+### LakeCtl Wrapper
+
+Setting up a LakeCtl is Pretty simple you will need an URI to the server and the Key pair. 
+Currently we use EnvVaraibles to setup the Binary. In the future no binary will be needed and we will interact with the Lake Py packages. 
+The LakeCtl wrapper is designed to be compatible with the Lake Ps Packages so we intend to make it backwards Compatible. 
+
+For the time being there is a chance that if you create Multiple LakeCtl instance that point to different servers you might overwrite the environments of the others. 
+This will be fixed in the first Full Release but for now you might have to look out for it. 
+
+```py
+ctl = wrapper.LakeCtl(
+    base_uri_oberwrite={LakeFs Server Adrees},
+    access_key_id={LakeFs Server Key Id},
+    secret_access_key={LakeFs Server Key},
+)
+```
+All our Functions Definitions follow a Schema. \n
+progress_obj is the first portion its important for the Work-Hanlder system if you just want to use the LakeCtl alone you can Simply set it to None. \n
+after that you will have the portions needed for the LakeCtl in most cases we name the variables after the variables you find in the LakeCtl they are allow described in code and in the API docs.
+
+```py
+element = ctl.clone_element(progress_obj=None, lake_fs_object_uir=lake_fs_object, dist_path=dist_path)
+
+```
