@@ -11,7 +11,7 @@ project.
 
 - [Getting Started Guide](md_md_Getting_Started.html)
 - [API Reference](annotated.html)
-
+- [Examples](md_md_Examples.html)
 ### Versions
 
 > **Note** Currently older versions don't have links to newer versions because
