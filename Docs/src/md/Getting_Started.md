@@ -1,58 +1,39 @@
 # Getting Started
 
-This repository is designed to be used as a library. to aid you by interacting
-with LakeFs
+This repository is intended as a library, designed to facilitate interaction with LakeFS.
 
-we often vendor this code and use submodules to do so. If possible for you you
-should also be able to install it using the pip install method's against github
-this has no extensive testing yet.
-
-in most cases your interaction with this tool set will center around processing
-binary or generally larger data.
+We commonly use vendor code and submodules for this purpose; however, if feasible, 
+you can also install it via pip against GitHub, though extensive testing has not been conducted yet. 
+Primarily, your interactions with this tool set will revolve around processing binary or larger data files.
 
 ## General Concepts
 
-the most important things to grasp early or are:
+**Key Concepts to Understand Early:**
 
-**work handling** This fundamental concept is that individual tasks, such as
-function calls and similar operations, often either run concurrently in parallel
-or are dependent on each other. As a result, most of the time we employ a work
-queue provided by our WorkHandler module.
+- **Work Handling:** This core principle revolves around individual tasks such as function calls and similar operations, 
+which often run concurrently or are dependent on each other. 
+Consequently, we typically utilize a work queue provided by our WorkHandler module.
 
-**The lakeFs Wrapper** this is simply a wrapper around the lakectl, it makes it
-easy to interact with a given LakeFs reposetroy. i advice to read the
-[LakeFs Docs](https://docs.lakefs.io/) before using it
+- **LakeFS Wrapper:** This is simply an abstraction layer over lakectl to facilitate interaction with LakeFS repositories.
+It's recommended to familiarize oneself with the [LakeFS Documentation](https://docs.lakefs.io/) beforehand.
 
-**Progress Displays** many of the tools in this repo can report back there
-progress. This is handles internally and in most cases it will be most straight
-forward if you just use the options to connect a GUI from the gui module with a
-controller from the work_hanlder module a bit more on that in there individual
-pages.
+- **Progress Displays:** Many tools in this repository can provide progress updates, which are handled internally. 
+For most straightforward usage, connect a GUI from the gui module with a controller from the work_handler module; further details can be found on their respective pages.
 
 ## Modules
 
-The bin bridge client is broken into 4 modules. They all have an dedicated site
-with more information about them
+The bin bridge client is divided into four modules, each with its own dedicated documentation for more information:
 
-### gui
+### GUI
+The GUI module provides classes to display progress and status of work handler items to users.
 
-The GUI module exposes classes that allow you to show progress and state of work
-handler items to a user
+### LakeCtlPy
+The LakeCtlPy module serves as a simple wrapper around select functions of the [LakeCtl](https://docs.lakefs.io/reference/cli.html), facilitating Python interaction with LakeCtl.
 
-### lakectlpy
+### Utilities (Util)
+This module contains helper functions for working with data that may need to be uploaded or downloaded from LakeFS.
 
-The lakectlpy modules is a Simple wrapper around a few selected functions of the
-[LakeCtl](https://docs.lakefs.io/reference/cli.html). it makes it easy to
-interact with LakeCtl from python
-
-### util
-
-Holds some functions to aid the interaction with data that you might want to up
-and download from LakeFs.
-
-### work_hanlder
-
-System to create distrusted tasks with dependency's that run in order across
-your system
+### Work Handler
+The work handler system enables distributed tasks with dependencies, ensuring they run in the correct order across your system.
 
 [Examples](md_md_Examples.html)

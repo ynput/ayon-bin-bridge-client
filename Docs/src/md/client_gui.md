@@ -1,12 +1,14 @@
 # ayon_bin_distro.gui: GUI utils for the work handler module
 
-This module is to give an convenient way to display the state of
-an [work_hanlder Controller](md_md_client_work_hanlder.html@id="doc-content")
+**Module Target**
 
-The most important class is the `ProgressDialog` class. It allows you to display
-the state of an work_controller.
+This module aims to provide a convenient way to display the state of a [work_handler Controller](md_md_client_work_hanlder.html@id="doc-content").
 
-Most common example usage would be
+**Key Class** 
+
+The most important class in this module is `ProgressDialog`. It enables you to display the state of a work_controller.
+
+**Common Example Usage**
 
 ```py
 import sys
@@ -19,5 +21,3 @@ ui = progress_ui.ProgressDialog(<Controler_Instance>)
 ui.start()
 sys.exit(app.exec_())
 ```
-
-

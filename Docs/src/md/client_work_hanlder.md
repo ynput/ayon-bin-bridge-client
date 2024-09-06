@@ -1,26 +1,21 @@
-# ayon_bin_distro.work_handler: classes to distribute work items
+# ayon_bin_distro.work_handler: Classes for Distributing Work Items
 
-The work handler package is concerned about allowing you to create dependent
-tasks and then distributing them.
+The `work_handler` package focuses on enabling you to create dependent tasks and subsequently distribute them efficiently.
 
-This example is one of the easy ways to use a controller and construct a work
-item on it.
+Here's an easy way to use a controller and construct a work item on it:
 
-```py
+```python
 controller = worker.Controller()
 controller.construct_work_item(func=test_func, progress_title=f"test{i}")
 ```
 
-You can also add a work item manually, most of the time the construct work item
-is a bit simpler to use as it reduces the lines to write.
+You can also add work items manually. However, using `construct_work_item` often simplifies the process by reducing the amount of code to write:
 
-```py
+```python
 work_item_instance = WorkItem()
 Controller.add_work_item(work_item_instance)
 ```
 
-It's important to know that every work item will be started on a separate thread
-so the thread that calls `Controller.start()` is free to continue its work.
+It's crucial to note that each work item will be started on a separate thread. This allows the thread that calls `Controller.start()` to continue its own tasks freely.
 
-When the controller is connected to a GUI you don't need to start the
-controller this will be handled by the GUI instance instead.
+When connected to a GUI, there is no need to start the controller manually; instead, this process will be managed by the GUI instance itself.
