@@ -236,7 +236,6 @@ class Controller:
             icon_path: path for an icon that should be displayed in the GUI (a ProgressItem will be created for the work item if icon_path and progress_title are present if not an BaseProgressItem)
             progress_title: title for the Progress bar to show in the GUI (a ProgressItem will be created for the work item if icon_path and progress_title are present if not an BaseProgressItem)
 
-
         Returns: WorkItem instance that has been added to the Controller instance
 
         """
