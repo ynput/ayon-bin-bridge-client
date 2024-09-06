@@ -3,7 +3,7 @@ import platform
 import shutil
 import subprocess
 import sys
-from typing import Dict, Optional, Union
+from typing import Dict, Optional, Union, List
 
 from ..work_handler import worker
 
@@ -54,13 +54,10 @@ class LakeCtl:
 
         if access_key_id:
             self.lake_ctl_acces_key_id = access_key_id
-            # os.environ["LAKECTL_CREDENTIALS_ACCESS_KEY_ID"] = access_key_id
         if secret_access_key:
             self.lake_ctl_secret_acces_key = secret_access_key
-            # os.environ["LAKECTL_CREDENTIALS_SECRET_ACCESS_KEY"] = secret_access_key
         if server_url:
             self.lake_ctl_server_url = server_url
-            # os.environ["LAKECTL_SERVER_ENDPOINT_URL"] = server_url
 
         self.data = ""
 
@@ -125,7 +122,7 @@ class LakeCtl:
                 continue
             sys.stdout.write(process.stdout.readline())
 
-    def list_repo_objects(self, lake_fs_repo_uri: str):
+    def list_repo_objects(self, lake_fs_repo_uri: str)-> List[str]:
         """list objects on a given repository
 
         Args:
@@ -137,7 +134,7 @@ class LakeCtl:
         process = self._run(
             ["fs", "ls", "-r", lake_fs_repo_uri], non_blocking_stdout=False
         )
-        object_list = []
+        object_list:List[str] = []
         while process.poll() is None:
             if process.stdout is None:
                 continue
