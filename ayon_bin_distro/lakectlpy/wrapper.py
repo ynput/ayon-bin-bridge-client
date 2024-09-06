@@ -53,11 +53,14 @@ class LakeCtl:
             self.base_uri = None
 
         if access_key_id:
-            os.environ["LAKECTL_CREDENTIALS_ACCESS_KEY_ID"] = access_key_id
+            self.lake_ctl_acces_key_id = access_key_id
+            # os.environ["LAKECTL_CREDENTIALS_ACCESS_KEY_ID"] = access_key_id
         if secret_access_key:
-            os.environ["LAKECTL_CREDENTIALS_SECRET_ACCESS_KEY"] = secret_access_key
+            self.lake_ctl_secret_acces_key = secret_access_key
+            # os.environ["LAKECTL_CREDENTIALS_SECRET_ACCESS_KEY"] = secret_access_key
         if server_url:
-            os.environ["LAKECTL_SERVER_ENDPOINT_URL"] = server_url
+            self.lake_ctl_server_url = server_url
+            # os.environ["LAKECTL_SERVER_ENDPOINT_URL"] = server_url
 
         self.data = ""
 
@@ -78,10 +81,17 @@ class LakeCtl:
         if self.base_uri:
             base_uri_command = ["--base-uri", self.base_uri]
 
+        wrapper_env = os.environ.copy()
+        if self.lake_ctl_acces_key_id:
+            wrapper_env["LAKECTL_CREDENTIALS_ACCESS_KEY_ID"] = self.lake_ctl_acces_key_id 
+        if self.lake_ctl_secret_acces_key:
+            wrapper_env["LAKECTL_CREDENTIALS_SECRET_ACCESS_KEY"] = self.lake_ctl_secret_acces_key 
+        if self.lake_ctl_server_url:
+            wrapper_env["LAKECTL_SERVER_ENDPOINT_URL"] = self.lake_ctl_server_url 
         process = subprocess.Popen(
             [
                 self.wrapped_lakectl,
-                "--base-uri",
+                "--config",
                 self.lake_config,
                 *base_uri_command,
                 *lakectl_command,
@@ -90,6 +100,7 @@ class LakeCtl:
             stderr=subprocess.PIPE,
             universal_newlines=True,
             cwd=cwd,
+            env=wrapper_env
         )
         # TODO implement non blocking stderr stdout pull for windows
         if (
