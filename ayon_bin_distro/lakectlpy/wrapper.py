@@ -165,6 +165,7 @@ class LakeCtl:
             print_stdout: bool print stdout or operate silent
 
         Returns:
+            str: The destination directory.
 
         """
         if dist_path and exists_okay:
