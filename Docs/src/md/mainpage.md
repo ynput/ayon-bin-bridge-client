@@ -1,8 +1,9 @@
 # Welcome to the AYON Cpp Dev Tools
 
 The Ayon bin bridge Client allows efficient communication with an
-[LakeFs](https://lakefs.io/) server.\n PS: we use LakeFs to distribute binary
-data across tools like Ayon-Usd addon
+[LakeFs](https://lakefs.io/) server.
+
+PS: we use LakeFs to distribute binary data across tools like Ayon-Usd addon
 
 Explore the documentation to learn more about how to use and contribute to this
 project.
