@@ -225,6 +225,7 @@ class LakeCtl:
             lake_fs_object_uir: lakeFs internal uri to an lakeFs element
 
         Returns:
+            Dict[str, str]: The element info for the LakeFS object.
 
         """
         data_dict = {}
