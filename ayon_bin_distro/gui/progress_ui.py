@@ -83,7 +83,7 @@ class ProgressBar(QtWidgets.QWidget):
         return self._progress_bar
 
     def update_progress(self):
-        """updates the lables and Progress Bars"""
+        """updates the labels and Progress Bars"""
         if not self._progress.started:
             self.progress_bar.setValue(0)
             self._progress_bar.setFormat("Waiting")
