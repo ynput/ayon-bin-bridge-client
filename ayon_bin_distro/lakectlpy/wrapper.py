@@ -290,8 +290,9 @@ class LakeCtl:
         """commits changes from a local repository (like git commit -m)
 
         Args:
-            local_path: optinal str needs to be a path if the current cwd is not the repository
-            commit_message: str commit message that will be send to lakeFs for the commit
+            commit_message (str): Commit message that will be send to lakeFs for the commit
+            local_path (Optional[str]): Specify the local repository path, if not provided the
+                current working directory (cwd) will be used.
         """
         process = self._run(
             ["local", "commit", ".", "-m", commit_message], cwd=local_path
