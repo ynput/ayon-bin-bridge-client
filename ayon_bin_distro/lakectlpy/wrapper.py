@@ -195,7 +195,7 @@ class LakeCtl:
             if not stdout:
                 continue
 
-            if stdout and progress_obj:
+            if progress_obj:
                 current_line_split = stdout.split()
                 for i in current_line_split:
                     if "%" in i:

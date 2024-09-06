@@ -5,6 +5,7 @@ The Ayon bin bridge Client allows efficient communication with an
 
 PS: we use LakeFs to distribute binary data across tools like Ayon-Usd addon
 
+
 Explore the documentation to learn more about how to use and contribute to this
 project.
 
@@ -25,4 +26,4 @@ project.
 
 ## License
 
-- This project is licensed under the Apache2.0 License.
+- The license for this project can be found in the project root. For more in-depth information about licensing, please contact the Input Team at [Contact](https://ynput.io/contact/).

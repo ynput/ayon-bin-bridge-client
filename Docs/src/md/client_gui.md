@@ -19,3 +19,5 @@ ui = progress_ui.ProgressDialog(<Controler_Instance>)
 ui.start()
 sys.exit(app.exec_())
 ```
+
+
