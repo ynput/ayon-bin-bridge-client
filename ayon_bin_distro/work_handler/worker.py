@@ -187,7 +187,7 @@ class WorkItem:
 
 class Controller:
     def __init__(self):
-        """work controller class that organises and starts WorkItem's acroding to there dependency's grouped on separated threads depending on there dependency's"""
+        """work controller class that organises and starts WorkItem's according to their dependencoes grouped on separated threads depending on their dependencies"""
         self._work_items_by_id_hex: Dict[str, WorkItem] = {}
         self._progress_items_by_work_item_id_hex: Dict[
             str, Union[BaseProgressItem, ProgressItem]
