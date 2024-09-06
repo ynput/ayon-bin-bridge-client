@@ -30,7 +30,7 @@ class LakeCtl:
 
         Raises:
             NotImplementedError: raised if a method is called that we do not yet implement usually because no one needed it until now (best to write a ticket)
-            RuntimeError: raised to protect lakectl calles with invalid data. (specific data will be in the error info )
+            RuntimeError: raised to protect lakectl calles with invalid data. (specific data will be in the error info)
         """
         self.bin_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "bin")
         self.lake_config = os.path.join(self.bin_path, ".lakectl.yaml")
