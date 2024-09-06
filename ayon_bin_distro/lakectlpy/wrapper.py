@@ -158,7 +158,7 @@ class LakeCtl:
         """clone a lakeFs repository to a local path
 
         Args:
-            exists_okay (): bool delet dist_path if folder exists
+            exists_okay (bool): delete dist_path if folder exists
             progress_obj: optional ProgressItem to connect a wrapper to an work item
             repo_branch_uri: str lakeFs internal uri to the repository
             dist_path: str destination path
