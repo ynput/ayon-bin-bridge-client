@@ -189,12 +189,12 @@ class ProgressDialog(QtWidgets.QDialog):
         """Class to display the progress of the worker.Controller to a user.
 
         Args:
-            controller: instance of worker.Controller that should be monitored
-            delete_progress_bar_on_finish: bool to allow for progress bars to be deleted when they finished
-            close_on_finish: bool to decided if the Gui needs to be closed manually
-            auto_close_timeout: float timeout value for how long the GUI should exist after all process bars have finished
-            title: str GUI window title
-            ui_update_reate: defines the interval that is used to ask the worker.Controller for the current state of the tasks
+            controller (worker.Controller): controller that should be monitored
+            delete_progress_bar_on_finish (bool): to allow for progress bars to be deleted when they finished
+            close_on_finish (bool): to decided if the Gui needs to be closed manually
+            auto_close_timeout (float): timeout value for how long the GUI should exist after all process bars have finished
+            title (str): GUI window title
+            ui_update_interval (int): defines the interval that is used to ask the `worker.Controller` for the current state of the tasks
         """
         super().__init__()
 
