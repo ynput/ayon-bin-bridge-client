@@ -16,10 +16,10 @@ class BaseProgressItem:
     ):
         """Base class for ProgressItem's can be used in headless mode
         Args:
-            started: bool signal that the work has started default false
-            progress: int current progress of work 0-100 default -1 signals that there will no progress updates
-            finished: bool signals that the work has finished default false
-            failed: bool signals that the work has failed default false
+            started (bool): signal that the work has started default false
+            progress (int): current progress of work 0-100 default -1 signals that there will no progress updates
+            finished (bool): signals that the work has finished default false
+            failed (bool): signals that the work has failed default false
         """
         self._id: uuid.UUID = uuid.uuid4()
         self.started: bool = started
