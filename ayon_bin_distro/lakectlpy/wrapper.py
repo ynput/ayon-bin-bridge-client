@@ -15,7 +15,7 @@ if sys.platform.lower() == "linux":
 class LakeCtl:
     def __init__(
         self,
-        base_uri_oberwrite: Optional[str] = None,
+        base_uri_overwrite: Optional[str] = None,
         access_key_id: Optional[str] = None,
         secret_access_key: Optional[str] = None,
         server_url: Optional[str] = None,
@@ -23,7 +23,7 @@ class LakeCtl:
         """Wrapper class for the LakeCtl binary (windows, linux)
 
         Args:
-            base_uri_oberwrite: optional str base URI used for lakeFS address parse. can be set in lakectl.yaml
+            base_uri_overwrite: optional str base URI used for lakeFS address parse. can be set in lakectl.yaml
             access_key_id: optional str LakeFs server acces key Id. can be set in lakectl.yaml
             secret_access_key: optional str LakeFs server acces key. can be set in lakectl.yaml
             server_url: optional str used to connect to a specific LakeFs server
@@ -47,8 +47,8 @@ class LakeCtl:
         if not os.path.exists(self.wrapped_lakectl):
             raise RuntimeError("the lakectl exe is missing")
 
-        if base_uri_oberwrite:
-            self.base_uri = base_uri_oberwrite
+        if base_uri_overwrite:
+            self.base_uri = base_uri_overwrite 
         else:
             self.base_uri = None
 

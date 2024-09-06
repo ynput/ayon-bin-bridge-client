@@ -184,7 +184,7 @@ class ProgressDialog(QtWidgets.QDialog):
         close_on_finish: bool = False,
         auto_close_timeout: float = 0.5,
         title: str = "",
-        ui_update_reate: int = 100,
+        ui_update_interval: int = 100,
     ):
         """Class to display the progress of the worker.Controller to a user.
 
