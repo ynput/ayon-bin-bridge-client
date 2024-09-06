@@ -326,9 +326,9 @@ class Controller:
         self._main_thread.start()
 
     def is_running(self):
-        """check if the current Controller has running WorkItem's
+        """check if the current Controller has running WorkItems
 
-        Returns: true if there is one or more running WorkItem's
+        Returns: true if there is one or more running WorkItems
 
         """
         if self._work_started and not self._work_finished:
