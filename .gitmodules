@@ -1,3 +1,5 @@
 [submodule "ayon_automator"]
 	path = ayon_automator
-	url = https://github.com/ynput/ayon-automator.git
+  url = https://github.com/ynput/ayon-automator.git
+  tag = v0.1.0
+

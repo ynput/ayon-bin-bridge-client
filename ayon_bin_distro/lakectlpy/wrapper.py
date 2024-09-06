@@ -3,7 +3,7 @@ import platform
 import shutil
 import subprocess
 import sys
-from typing import Dict, Optional, Union
+from typing import Dict, Optional, Union, List
 
 from ..work_handler import worker
 
@@ -15,12 +15,23 @@ if sys.platform.lower() == "linux":
 class LakeCtl:
     def __init__(
         self,
-        base_uri_oberwrite=None,
+        base_uri_overwrite: Optional[str] = None,
         access_key_id: Optional[str] = None,
         secret_access_key: Optional[str] = None,
         server_url: Optional[str] = None,
     ) -> None:
+        """Wrapper class for the LakeCtl binary (windows, linux)
 
+        Args:
+            base_uri_overwrite: optional str base URI used for lakeFS address parse. can be set in lakectl.yaml
+            access_key_id: optional str LakeFs server acces key Id. can be set in lakectl.yaml
+            secret_access_key: optional str LakeFs server acces key. can be set in lakectl.yaml
+            server_url: optional str used to connect to a specific LakeFs server
+
+        Raises:
+            NotImplementedError: raised if a method is called that we do not yet implement usually because no one needed it until now (best to write a ticket)
+            RuntimeError: raised to protect lakectl calles with invalid data. (specific data will be in the error info)
+        """
         self.bin_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "bin")
         self.lake_config = os.path.join(self.bin_path, ".lakectl.yaml")
         if platform.system().lower() == "windows":
@@ -36,31 +47,48 @@ class LakeCtl:
         if not os.path.exists(self.wrapped_lakectl):
             raise RuntimeError("the lakectl exe is missing")
 
-        if base_uri_oberwrite:
-            self.base_uri = base_uri_oberwrite
+        if base_uri_overwrite:
+            self.base_uri = base_uri_overwrite 
         else:
             self.base_uri = None
 
         if access_key_id:
-            os.environ["LAKECTL_CREDENTIALS_ACCESS_KEY_ID"] = access_key_id
+            self.lake_ctl_acces_key_id = access_key_id
         if secret_access_key:
-            os.environ["LAKECTL_CREDENTIALS_SECRET_ACCESS_KEY"] = secret_access_key
+            self.lake_ctl_secret_acces_key = secret_access_key
         if server_url:
-            os.environ["LAKECTL_SERVER_ENDPOINT_URL"] = server_url
+            self.lake_ctl_server_url = server_url
 
         self.data = ""
 
     def _run(
         self, lakectl_command: list, cwd=None, non_blocking_stdout: bool = True
     ) -> subprocess.Popen:
+        """call lakectl bin with args gets lakectl bin, base uri and config from the member vars
+
+        Args:
+            cwd: option to move the path from where we call the lakectl passed to subprocess.Popen
+            lakectl_command: lakectl command to run
+            non_blocking_stdout: enable non blocking stdout on linux only
+
+        Returns:
+
+        """
         base_uri_command = []
         if self.base_uri:
             base_uri_command = ["--base-uri", self.base_uri]
 
+        wrapper_env = os.environ.copy()
+        if self.lake_ctl_acces_key_id:
+            wrapper_env["LAKECTL_CREDENTIALS_ACCESS_KEY_ID"] = self.lake_ctl_acces_key_id 
+        if self.lake_ctl_secret_acces_key:
+            wrapper_env["LAKECTL_CREDENTIALS_SECRET_ACCESS_KEY"] = self.lake_ctl_secret_acces_key 
+        if self.lake_ctl_server_url:
+            wrapper_env["LAKECTL_SERVER_ENDPOINT_URL"] = self.lake_ctl_server_url 
         process = subprocess.Popen(
             [
                 self.wrapped_lakectl,
-                "--base-uri",
+                "--config",
                 self.lake_config,
                 *base_uri_command,
                 *lakectl_command,
@@ -69,6 +97,7 @@ class LakeCtl:
             stderr=subprocess.PIPE,
             universal_newlines=True,
             cwd=cwd,
+            env=wrapper_env
         )
         # TODO implement non blocking stderr stdout pull for windows
         if (
@@ -85,6 +114,7 @@ class LakeCtl:
         return process
 
     def help(self):
+        """print the output of lakectl --help"""
         process = self._run(["--help"])
 
         while process.poll() is None:
@@ -92,11 +122,19 @@ class LakeCtl:
                 continue
             sys.stdout.write(process.stdout.readline())
 
-    def list_repo_objects(self, lake_fs_repo_uri: str):
+    def list_repo_objects(self, lake_fs_repo_uri: str)-> List[str]:
+        """list objects on a given repository
+
+        Args:
+            lake_fs_repo_uri: lakeFs internal uri for the repository
+
+        Returns:
+
+        """
         process = self._run(
             ["fs", "ls", "-r", lake_fs_repo_uri], non_blocking_stdout=False
         )
-        object_list = []
+        object_list:List[str] = []
         while process.poll() is None:
             if process.stdout is None:
                 continue
@@ -111,10 +149,22 @@ class LakeCtl:
         progress_obj: Optional[Union[worker.BaseProgressItem, worker.ProgressItem]],
         repo_branch_uri: str,
         dist_path: str,
-        exists_okay=False,
+        exists_okay: bool = False,
         print_stdout: bool = False,
     ) -> str:
+        """clone a lakeFs repository to a local path
 
+        Args:
+            exists_okay (bool): delete dist_path if folder exists
+            progress_obj: optional ProgressItem to connect a wrapper to an work item
+            repo_branch_uri: str lakeFs internal uri to the repository
+            dist_path: str destination path
+            print_stdout: bool print stdout or operate silent
+
+        Returns:
+            str: The destination directory.
+
+        """
         if dist_path and exists_okay:
             if os.path.exists(dist_path):
                 shutil.rmtree(dist_path)
@@ -143,7 +193,7 @@ class LakeCtl:
             if not stdout:
                 continue
 
-            if stdout and progress_obj:
+            if progress_obj:
                 current_line_split = stdout.split()
                 for i in current_line_split:
                     if "%" in i:
@@ -167,6 +217,15 @@ class LakeCtl:
         return dest_dir
 
     def get_element_info(self, lake_fs_object_uir: str) -> Dict[str, str]:
+        """get metadata information about a given lakeFs object
+
+        Args:
+            lake_fs_object_uir: lakeFs internal uri to an lakeFs element
+
+        Returns:
+            Dict[str, str]: The element info for the LakeFS object.
+
+        """
         data_dict = {}
         process = self._run(
             ["fs", "stat", lake_fs_object_uir], non_blocking_stdout=False
@@ -188,6 +247,18 @@ class LakeCtl:
         dist_path: str,
         print_stdout: bool = False,
     ) -> str:
+        """clone an individual lakeFs element to a local path
+
+        Args:
+            progress_obj: optional ProgressItem to connect to a workItem
+            lake_fs_object_uir: str lakeFs internal object uri
+            dist_path: str machine local path to clone to
+            print_stdout: bool enable printing the stdout
+
+        Returns:
+            str: The destination path.
+
+        """
         process = self._run(["fs", "download", lake_fs_object_uir, dist_path])
 
         if progress_obj:
@@ -215,7 +286,14 @@ class LakeCtl:
                 sys.stdout.flush()
         return dest_path
 
-    def commit_local(self, commit_message: str, local_path=None):
+    def commit_local(self, commit_message: str, local_path: Optional[str] = None):
+        """commits changes from a local repository (like git commit -m)
+
+        Args:
+            commit_message (str): Commit message that will be send to lakeFs for the commit
+            local_path (Optional[str]): Specify the local repository path, if not provided the
+                current working directory (cwd) will be used.
+        """
         process = self._run(
             ["local", "commit", ".", "-m", commit_message], cwd=local_path
         )
