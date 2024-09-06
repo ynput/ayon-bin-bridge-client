@@ -129,7 +129,7 @@ class LakeCtl:
         """list objects on a given repository
 
         Args:
-            lake_fs_repo_uri: lakeFs internal uir for the repository
+            lake_fs_repo_uri: lakeFs internal uri for the repository
 
         Returns:
 
