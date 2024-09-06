@@ -257,6 +257,7 @@ class LakeCtl:
             print_stdout: bool enable printing the stdout
 
         Returns:
+            str: The destination path.
 
         """
         process = self._run(["fs", "download", lake_fs_object_uir, dist_path])
