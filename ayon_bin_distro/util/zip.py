@@ -23,7 +23,7 @@ def zip_folder(folder_path: str, output_path: str) -> Union[str, bool]:
     """zip a given folder to a given output path
 
     Args:
-        folder_path: foulder to be ziped
+        folder_path: folder to be zipped
         output_path: zip output location (needs to end in .zip)
 
     Returns:
