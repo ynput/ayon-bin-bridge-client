@@ -111,14 +111,14 @@ class MultiProgressWidget(QtWidgets.QWidget):
         self,
         controller: worker.Controller,
         parent: QtWidgets.QDialog,
-        delet_progress_bar_on_finish: bool = True,
+        delete_progress_bar_on_finish: bool = True,
     ):
         """core widget that holds and updates multiple Progress bars
 
         Args:
             controller: work.Controller instance that can be used to request the progress status
             parent: the parent QDialog
-            delet_progress_bar_on_finish: bool decides if an progress bar will be deleted when if finished or not
+            delete_progress_bar_on_finish: bool decides if an progress bar will be deleted when if finished or not
         """
         super().__init__(parent)
 
@@ -155,7 +155,7 @@ class MultiProgressWidget(QtWidgets.QWidget):
         for progress_bar_instance in self._progress_bar_by_id.values():
             progress_bar_instance.update_progress()
             if progress_bar_instance.is_finished():
-                if self._delet_progress_bar_on_finish:
+                if self._delete_progress_bar_on_finish:
                     progress_bar_instance.setVisible(False)
                 else:
 
@@ -180,7 +180,7 @@ class ProgressDialog(QtWidgets.QDialog):
     def __init__(
         self,
         controller: worker.Controller,
-        delet_progress_bar_on_finish: bool = True,
+        delete_progress_bar_on_finish: bool = True,
         close_on_finish: bool = False,
         auto_close_timeout: float = 0.5,
         title: str = "",
@@ -190,7 +190,7 @@ class ProgressDialog(QtWidgets.QDialog):
 
         Args:
             controller: instance of worker.Controller that should be monitored
-            delet_progress_bar_on_finish: bool to allow for progress bars to be deleted when they finished
+            delete_progress_bar_on_finish: bool to allow for progress bars to be deleted when they finished
             close_on_finish: bool to decided if the Gui needs to be closed manually
             auto_close_timeout: float timeout value for how long the GUI should exist after all process bars have finished
             title: str GUI window title
@@ -205,7 +205,7 @@ class ProgressDialog(QtWidgets.QDialog):
         widget = MultiProgressWidget(
             controller=controller,
             parent=self,
-            delet_progress_bar_on_finish=delet_progress_bar_on_finish,
+            delete_progress_bar_on_finish=delete_progress_bar_on_finish,
         )
         layout = QtWidgets.QHBoxLayout(self)
         layout.addWidget(widget)
