@@ -27,6 +27,7 @@ def zip_folder(folder_path: str, output_path: str) -> Union[str, bool]:
         output_path: zip output location (needs to end in .zip)
 
     Returns:
+        Union[str, bool]: Returns False if zip failed. On success the output path is returned.
 
     """
     if not os.path.isdir(folder_path):
