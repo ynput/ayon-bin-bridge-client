@@ -125,7 +125,7 @@ class MultiProgressWidget(QtWidgets.QWidget):
         self._controller: worker.Controller = controller
         self._progress_bar_by_id: Dict[str, ProgressBar] = {}
 
-        self._delet_progress_bar_on_finish: bool = delet_progress_bar_on_finish
+        self._delete_progress_bar_on_finish: bool = delete_progress_bar_on_finish
 
         scroll_area = QtWidgets.QScrollArea(self)
         scroll_area.setWidgetResizable(True)
