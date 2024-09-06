@@ -319,7 +319,7 @@ class Controller:
                 break
 
     def start(self):
-        """used to start execution off all work items.
+        """Start execution off all work items.
         the _start_main_loop function is called to a different thread so this function will not block further execution
         """
         self._main_thread = threading.Thread(target=self._start_main_loop)
