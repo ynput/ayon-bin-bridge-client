@@ -70,7 +70,7 @@ class LakeCtl:
         """call lakectl bin with args gets lakectl bin, base uri and config from the member vars
 
         Args:
-            cwd (): option to move the path from where we call the lakectl passed to subprocess.Popen
+            cwd: option to move the path from where we call the lakectl passed to subprocess.Popen
             lakectl_command: lakectl command to run
             non_blocking_stdout: enable non blocking stdout on linux only
 
