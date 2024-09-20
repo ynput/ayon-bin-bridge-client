@@ -33,7 +33,7 @@ class LakeCtl:
             RuntimeError: raised to protect lakectl calles with invalid data. (specific data will be in the error info)
         """
         self.bin_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "bin")
-        self.lake_config = os.path.join(self.bin_path, ".lakectl.yaml")
+        self.lake_config = os.path.join(self.bin_path, "dummy_lake_conf.yaml")
         if platform.system().lower() == "windows":
             self.wrapped_lakectl = os.path.join(self.bin_path, "lakectl.exe")
         elif platform.system().lower() == "linux":
