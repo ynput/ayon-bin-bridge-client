@@ -210,7 +210,7 @@ class ProgressDialog(QtWidgets.QDialog):
         layout = QtWidgets.QHBoxLayout(self)
         layout.addWidget(widget)
         timer = QtCore.QTimer()
-        timer.setInterval(ui_update_reate)
+        timer.setInterval(ui_update_interval)
         timer.timeout.connect(self._update_progress_elements)
 
         self._widget: MultiProgressWidget = widget
