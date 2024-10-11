@@ -3,12 +3,18 @@ import platform
 import shutil
 import subprocess
 import sys
+import select
 from typing import Dict, Optional, Union, List
 
 from ..work_handler import worker
 
 if sys.platform.lower() == "linux":
     import fcntl
+
+
+class DialTcpError(Exception):
+    def __init__(self, message):
+        super().__init__(message)
 
 
 # TODO test windows version
@@ -48,7 +54,7 @@ class LakeCtl:
             raise RuntimeError("the lakectl exe is missing")
 
         if base_uri_overwrite:
-            self.base_uri = base_uri_overwrite 
+            self.base_uri = base_uri_overwrite
         else:
             self.base_uri = None
 
@@ -80,11 +86,15 @@ class LakeCtl:
 
         wrapper_env = os.environ.copy()
         if self.lake_ctl_acces_key_id:
-            wrapper_env["LAKECTL_CREDENTIALS_ACCESS_KEY_ID"] = self.lake_ctl_acces_key_id 
+            wrapper_env["LAKECTL_CREDENTIALS_ACCESS_KEY_ID"] = (
+                self.lake_ctl_acces_key_id
+            )
         if self.lake_ctl_secret_acces_key:
-            wrapper_env["LAKECTL_CREDENTIALS_SECRET_ACCESS_KEY"] = self.lake_ctl_secret_acces_key 
+            wrapper_env["LAKECTL_CREDENTIALS_SECRET_ACCESS_KEY"] = (
+                self.lake_ctl_secret_acces_key
+            )
         if self.lake_ctl_server_url:
-            wrapper_env["LAKECTL_SERVER_ENDPOINT_URL"] = self.lake_ctl_server_url 
+            wrapper_env["LAKECTL_SERVER_ENDPOINT_URL"] = self.lake_ctl_server_url
         process = subprocess.Popen(
             [
                 self.wrapped_lakectl,
@@ -97,7 +107,7 @@ class LakeCtl:
             stderr=subprocess.PIPE,
             universal_newlines=True,
             cwd=cwd,
-            env=wrapper_env
+            env=wrapper_env,
         )
         # TODO implement non blocking stderr stdout pull for windows
         if (
@@ -122,7 +132,43 @@ class LakeCtl:
                 continue
             sys.stdout.write(process.stdout.readline())
 
-    def list_repo_objects(self, lake_fs_repo_uri: str)-> List[str]:
+    def list_repos(self) -> List[dict]:
+        """lists out all the repos the user can see on a given LakeFs server
+
+        Raises:
+            DialTcpError: raised if an connection cant be established.
+
+        Returns: a list of repos in a dict representation.
+
+        """
+        process = self._run(["repo", "list"], non_blocking_stdout=False)
+        repos: List[dict] = []
+
+        while process.poll() is None:
+            reads = [process.stdout, process.stderr]
+            readable, _, _ = select.select(reads, [], [])
+
+            if process.stderr in readable:
+                stderr_output = process.stderr.readline()
+                if stderr_output:
+                    raise DialTcpError(stderr_output)
+
+            if process.stdout in readable:
+                stdout = process.stdout.readline()
+                if stdout:
+                    data = stdout.split()
+                    if data:
+                        repo = {
+                            "name": data[0],
+                            "time_stamp": " ".join(data[1:4]),
+                            "default_branch": data[5],
+                            "name_space": data[6],
+                        }
+                        repos.append(repo)
+
+        return repos
+
+    def list_repo_objects(self, lake_fs_repo_uri: str) -> List[str]:
         """list objects on a given repository
 
         Args:
@@ -134,7 +180,7 @@ class LakeCtl:
         process = self._run(
             ["fs", "ls", "-r", lake_fs_repo_uri], non_blocking_stdout=False
         )
-        object_list:List[str] = []
+        object_list: List[str] = []
         while process.poll() is None:
             if process.stdout is None:
                 continue
