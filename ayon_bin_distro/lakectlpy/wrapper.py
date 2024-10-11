@@ -13,8 +13,7 @@ if sys.platform.lower() == "linux":
 
 
 class DialTcpError(Exception):
-    def __init__(self, message):
-        super().__init__(message)
+    pass
 
 
 # TODO test windows version
