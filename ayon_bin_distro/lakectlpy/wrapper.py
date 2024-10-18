@@ -12,7 +12,7 @@ if sys.platform.lower() == "linux":
     import fcntl
 
 
-class DialTcpError(Exception):
+class LakeFSConnectionError(Exception):
     pass
 
 
@@ -135,7 +135,7 @@ class LakeCtl:
         """lists out all the repos the user can see on a given LakeFs server
 
         Raises:
-            DialTcpError: raised if an connection cant be established.
+            LakeFSConnectionError: raised if an connection cant be established.
 
         Returns: a list of repos in a dict representation.
 
@@ -150,7 +150,7 @@ class LakeCtl:
             if process.stderr in readable:
                 stderr_output = process.stderr.readline()
                 if stderr_output:
-                    raise DialTcpError(stderr_output)
+                    raise LakeFSConnectionError(stderr_output)
 
             if process.stdout in readable:
                 stdout = process.stdout.readline()
