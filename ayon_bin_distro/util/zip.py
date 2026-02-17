@@ -1,6 +1,28 @@
 from typing import Union
 import zipfile
 import os
+import platform
+
+
+class ZipFileLongPaths(zipfile.ZipFile):
+    """Allows longer paths in zip files.
+
+    Regular DOS paths are limited to MAX_PATH (260) characters, including
+    the string's terminating NUL character.
+    That limit can be exceeded by using an extended-length path that
+    starts with the '\\?\' prefix.
+    """
+    _is_windows = platform.system().lower() == "windows"
+
+    def _extract_member(self, member, tpath, pwd):
+        if self._is_windows:
+            tpath = os.path.abspath(tpath)
+            if tpath.startswith("\\\\"):
+                tpath = "\\\\?\\UNC\\" + tpath[2:]
+            else:
+                tpath = "\\\\?\\" + tpath
+
+        return super()._extract_member(member, tpath, pwd)
 
 
 def extract_zip_file(progress_item, zip_file_path: str, dest_dir: str) -> str:
@@ -10,8 +32,14 @@ def extract_zip_file(progress_item, zip_file_path: str, dest_dir: str) -> str:
         zip_file_path (str): The path to the zip file.
         dest_dir (str): The directory where the zip file should be extracted.
 
+    Returns:
+        str: Path to the extracted content directory.
+
+    Note:
+        On Windows, this function handles paths longer than MAX_PATH (260 chars)
+        by using the \\?\ long path prefix.
     """
-    with zipfile.ZipFile(zip_file_path, "r") as zip_ref:
+    with ZipFileLongPaths(zip_file_path, "r") as zip_ref:
         zip_ref.extractall(dest_dir)
 
     foulder_name = os.path.basename(zip_file_path).replace(".zip", "")
