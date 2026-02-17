@@ -4,28 +4,25 @@ import os
 import platform
 
 
-def _get_long_path(path: str) -> str:
-    """Convert path to Windows long path format if needed.
+class ZipFileLongPaths(zipfile.ZipFile):
+    """Allows longer paths in zip files.
 
-    On Windows, paths longer than 260 characters require the \\?\ prefix
-    to work correctly with most file operations.
-
-    Args:
-        path (str): The original file path.
-
-    Returns:
-        str: The path with long path prefix on Windows, or original on other OS.
+    Regular DOS paths are limited to MAX_PATH (260) characters, including
+    the string's terminating NUL character.
+    That limit can be exceeded by using an extended-length path that
+    starts with the '\\?\' prefix.
     """
-    if platform.system().lower() != "windows":
-        return path
+    _is_windows = platform.system().lower() == "windows"
 
-    # Already has the prefix
-    if path.startswith("\\\\?\\"):
-        return path
+    def _extract_member(self, member, tpath, pwd):
+        if self._is_windows:
+            tpath = os.path.abspath(tpath)
+            if tpath.startswith("\\\\"):
+                tpath = "\\\\?\\UNC\\" + tpath[2:]
+            else:
+                tpath = "\\\\?\\" + tpath
 
-    # Convert to absolute path and add prefix
-    abs_path = os.path.abspath(path)
-    return "\\\\?\\" + abs_path
+        return super()._extract_member(member, tpath, pwd)
 
 
 def extract_zip_file(progress_item, zip_file_path: str, dest_dir: str) -> str:
@@ -42,30 +39,8 @@ def extract_zip_file(progress_item, zip_file_path: str, dest_dir: str) -> str:
         On Windows, this function handles paths longer than MAX_PATH (260 chars)
         by using the \\?\ long path prefix.
     """
-    # Use long path prefix on Windows to handle paths > 260 characters
-    long_dest_dir = _get_long_path(dest_dir)
-
-    with zipfile.ZipFile(zip_file_path, "r") as zip_ref:
-        # Extract each file individually with long path support
-        for member in zip_ref.namelist():
-            # Normalize path separators for Windows (zip uses forward slashes)
-            normalized_member = member.replace("/", os.sep)
-
-            # Build the full destination path with long path prefix
-            dest_path = os.path.join(long_dest_dir, normalized_member)
-
-            if member.endswith('/'):
-                # Create directory
-                os.makedirs(dest_path, exist_ok=True)
-            else:
-                # Ensure parent directory exists
-                parent_dir = os.path.dirname(dest_path)
-                os.makedirs(parent_dir, exist_ok=True)
-
-                # Extract file
-                with zip_ref.open(member) as source:
-                    with open(dest_path, "wb") as target:
-                        target.write(source.read())
+    with ZipFileLongPaths(zip_file_path, "r") as zip_ref:
+        zip_ref.extractall(dest_dir)
 
     foulder_name = os.path.basename(zip_file_path).replace(".zip", "")
     return os.path.join(dest_dir, foulder_name)
