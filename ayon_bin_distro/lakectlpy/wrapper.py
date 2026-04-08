@@ -84,7 +84,11 @@ class LakeCtl:
         if self.lake_ctl_secret_acces_key:
             wrapper_env["LAKECTL_CREDENTIALS_SECRET_ACCESS_KEY"] = self.lake_ctl_secret_acces_key 
         if self.lake_ctl_server_url:
-            wrapper_env["LAKECTL_SERVER_ENDPOINT_URL"] = self.lake_ctl_server_url 
+            wrapper_env["LAKECTL_SERVER_ENDPOINT_URL"] = self.lake_ctl_server_url
+        popen_kwargs = {}
+        if sys.platform == "win32":
+            # Prevent console window from flashing on windows when running the subprocess
+            popen_kwargs["creationflags"] = subprocess.CREATE_NO_WINDOW
         process = subprocess.Popen(
             [
                 self.wrapped_lakectl,
@@ -97,7 +101,8 @@ class LakeCtl:
             stderr=subprocess.PIPE,
             universal_newlines=True,
             cwd=cwd,
-            env=wrapper_env
+            env=wrapper_env,
+            **popen_kwargs,
         )
         # TODO implement non blocking stderr stdout pull for windows
         if (
