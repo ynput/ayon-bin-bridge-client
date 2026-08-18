@@ -93,7 +93,11 @@ class LakeCtl:
                 self.lake_ctl_secret_acces_key
             )
         if self.lake_ctl_server_url:
-            wrapper_env["LAKECTL_SERVER_ENDPOINT_URL"] = self.lake_ctl_server_url
+            wrapper_env["LAKECTL_SERVER_ENDPOINT_URL"] = self.lake_ctl_server_url 
+        popen_kwargs = {}
+        if sys.platform == "win32":
+            # Prevent a console window from flashing when lakectl runs on Windows.
+            popen_kwargs["creationflags"] = subprocess.CREATE_NO_WINDOW
         process = subprocess.Popen(
             [
                 self.wrapped_lakectl,
@@ -107,6 +111,7 @@ class LakeCtl:
             universal_newlines=True,
             cwd=cwd,
             env=wrapper_env,
+            **popen_kwargs,
         )
         # TODO implement non blocking stderr stdout pull for windows
         if (
@@ -179,13 +184,20 @@ class LakeCtl:
         process = self._run(
             ["fs", "ls", "-r", lake_fs_repo_uri], non_blocking_stdout=False
         )
+        stdout, stderr = process.communicate()
+
+        if process.returncode:
+            error_output = (stderr or stdout).strip()
+            raise RuntimeError(
+                "lakectl failed to list repository objects for "
+                f"'{lake_fs_repo_uri}' (exit code {process.returncode}). "
+                f"{error_output}"
+            )
+
         object_list: List[str] = []
-        while process.poll() is None:
-            if process.stdout is None:
-                continue
-            stdout = process.stdout.readline()
-            if stdout and "object" in stdout:
-                object_list.append(stdout.split()[-1])
+        for line in stdout.splitlines():
+            if "object" in line:
+                object_list.append(line.split()[-1])
 
         return object_list
 
@@ -275,11 +287,17 @@ class LakeCtl:
         process = self._run(
             ["fs", "stat", lake_fs_object_uir], non_blocking_stdout=False
         )
+        stdout, stderr = process.communicate()
 
-        while process.poll() is None:
-            if process.stdout is None:
-                continue
-            data_line = process.stdout.readline()
+        if process.returncode:
+            error_output = (stderr or stdout).strip()
+            raise RuntimeError(
+                "lakectl failed to stat object "
+                f"'{lake_fs_object_uir}' (exit code {process.returncode}). "
+                f"{error_output}"
+            )
+
+        for data_line in stdout.splitlines():
             data_parts = [entry.strip() for entry in str(data_line).split(":")]
             data_dict[data_parts[0]] = " ".join(data_parts[1:])
 
